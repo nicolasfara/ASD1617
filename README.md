@@ -1,8 +1,9 @@
-#ASD1617
+# ASD1617
+Creazione di un dizionario.
 
-##Progetto algoritmi e strutture dati
+## Progetto algoritmi e strutture dati
+
 
 ```
-Desrizione
-
+Descrizione del progetto
 ```
