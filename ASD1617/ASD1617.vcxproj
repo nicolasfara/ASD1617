@@ -142,6 +142,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="lib1617.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="lib1617.c" />
+    <ClCompile Include="main1617.c" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
