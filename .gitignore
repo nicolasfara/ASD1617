@@ -1,0 +1,5 @@
+#Ingore Executable
+*.exe
+*.out
+*.app
+*.hex
