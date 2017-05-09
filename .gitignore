@@ -6,4 +6,4 @@
 *.swp
 
 #Ingore folder
-ASD1617/Debug
+Debug/
