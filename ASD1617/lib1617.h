@@ -5,6 +5,10 @@
 typedef struct NODO {
 	char* word;
 	char* def;
+	bool isBlack;
+	struct NODO *left;
+	struct NODO *right;
+	struct NODO *parent;
 	//altri campi
 }NODO;
 

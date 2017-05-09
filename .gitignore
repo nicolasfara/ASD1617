@@ -3,3 +3,7 @@
 *.out
 *.app
 *.hex
+*.swp
+
+#Ingore folder
+ASD1617/Debug
