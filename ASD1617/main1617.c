@@ -1,14 +1,15 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "lib1617.h"
-
+#include"lib1617.h"
+#include <time.h>
 
 char* randomWord(int dim);
 char* randomString(int dim);
 
+
 int main(void) {
 	char* stringTemp;
-	srand(time(NULL));
+	srand((unsigned int) time(NULL));
 	
 	NODO* dictionary = createFromFile("fileTest1617.txt");
 
@@ -17,39 +18,42 @@ int main(void) {
 
 	printf("\nNumero di parole salvate nel dizionario : %d\n\n", countWord(dictionary));
 
-	inserisciWord(&dictionary, "tavolo");
-	inserisciWord(&dictionary, "b");
-	inserisciWord(&dictionary, "zoo");
-	
+	insertWord(&dictionary, "tavolo");
+	insertWord(&dictionary, "b");
+	insertWord(&dictionary, "zoo");
+
 	printf("\nNumero di parole salvate nel dizionario : %d\n\n", countWord(dictionary));
 	printf("\nSTAMPA DEL DIZIONARIO dopo 3 inserimenti:\n");
 	printDictionary(dictionary);
 
-	cancellaWord(&dictionary, getWordAt(dictionary, 5));
-	cancellaWord(&dictionary, getWordAt(dictionary, 1));
-	cancellaWord(&dictionary, getWordAt(dictionary, 0));
+	cancWord(&dictionary, getWordAt(dictionary, 5));
+	cancWord(&dictionary, getWordAt(dictionary, 1));
+	cancWord(&dictionary, getWordAt(dictionary, 0));
 	printf("\nSTAMPA DEL DIZIONARIO dopo 3 cancellazioni:\n");
 	printDictionary(dictionary);
 	
-	inserisciDef(dictionary, getWordAt(dictionary, 2), "una definizione");
-	inserisciDef(dictionary, getWordAt(dictionary, 4), "altra definizione");
+	insertDef(dictionary, getWordAt(dictionary, 2), "una definizione");
+	insertDef(dictionary, getWordAt(dictionary, 4), "altra definizione");
 	printf("\nSTAMPA DEL DIZIONARIO dopo inserimento definizioni:\n");
 	printDictionary(dictionary);
 	printf("\nNumero di parole salvate nel dizionario : %d\n\n", countWord(dictionary));
 
 
-	printf("\nRicerca Parola \"%s\" -> definizione : [%s]\n\n", getWordAt(dictionary, 2), ricercaDef(dictionary, getWordAt(dictionary, 2)));
-	printf("\nRicerca Parola \"%s\" -> definizione : [%s]\n\n", getWordAt(dictionary, 7), ricercaDef(dictionary, getWordAt(dictionary, 7)));
+	printf("\nRicerca Parola \"%s\" -> definizione : [%s]\n\n", getWordAt(dictionary, 2), searchDef(dictionary, getWordAt(dictionary, 2)));
+	printf("\nRicerca Parola \"%s\" -> definizione : [%s]\n\n", getWordAt(dictionary, 7), searchDef(dictionary, getWordAt(dictionary, 7)));
 	stringTemp = "eftd";
-	printf("\nRicerca Parola \"%s\" -> definizione : [%s]\n\n", stringTemp, ricercaDef(dictionary, stringTemp));
+	printf("\nRicerca Parola \"%s\" -> definizione : [%s]\n\n", stringTemp, searchDef(dictionary, stringTemp));
+	
 
 
 	system("PAUSE");
 	return (0);
 }
 
+
+
 char* randomWord(int dim) {
-	int r, i;
+	int  i;
 
 	char* string = (char*)malloc((1 + dim) * sizeof(char));
 	if (string == NULL) return "random";
@@ -62,15 +66,15 @@ char* randomWord(int dim) {
 	return string;
 }
 
-char* randomString(int dim ) {
-	int r,i;
-	
-	char* string = (char*)malloc((1+dim) * sizeof(char));
+char* randomString(int dim) {
+	int r, i;
+
+	char* string = (char*)malloc((1 + dim) * sizeof(char));
 	if (string == NULL) return "random string";
-	
-	for ( i = 0; i < dim; i++) {
-		
-		r = rand()%40+97;
+
+	for (i = 0; i < dim; i++) {
+
+		r = rand() % 40 + 97;
 		if (r >122) r = ' ';
 		string[i] = r;
 	}
@@ -78,6 +82,4 @@ char* randomString(int dim ) {
 	printf("\t\t-----> randomString = %s \n", string);
 	return string;
 }
-
-
 
