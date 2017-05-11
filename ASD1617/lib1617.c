@@ -1,16 +1,53 @@
 #include "lib1617.h"
 
+NODO* sentinel = NULL; //Sentinella per le foglie e padre della radice
+
+int createSentinel() {
+	//Create node
+	sentinel = (NODO*)malloc(sizeof(NODO));
+	//Check for a safe malloc
+	if (sentinel == NULL)
+		return -1; //Bad malloc
+
+	//Update record for sentinel
+	sentinel->isBlack = true;
+	sentinel->parent = NULL;
+	sentinel->left = NULL;
+	sentinel->right = NULL;
+	sentinel->word = NULL;
+	sentinel->def = NULL;
+
+	return 0; //Ok
+}
+
+/*
+ *RETURN 0: n2 is grater than n1
+ *RETURN 1: n1 is grater than n2
+ *RETURN 2: n1 is n2
+*/
+unsigned short alphabeticalOrder(char* n1, char* n2) {
+	//Check character 
+	for (int i = 0; i < MAX_WORD; i++) {
+		if (n1[i] < n2[i])
+			return 0;
+		else if(n1[i] > n2[i])
+			return 1;
+	}
+
+	return 2;
+}
+
 void leftRotate(NODO** root, NODO* x)
 {
 	NODO* T = *root;
 	NODO* y = x->right; //Create new NODO and assign to x.right
 	x->right = y->left; //Move left sub-tree (y) on the x sub-tree
 
-	if (y->left != T->parent) y->left->parent = x;
+	if (y->left != sentinel) y->left->parent = x;
 
 	y->parent = x->parent; //Connect parent of x to y
 
-	if (x->parent == T->parent)
+	if (x->parent == sentinel)
 		*root = y;
 	else if (x == x->parent->left)
 		x->parent->left = y;
@@ -27,11 +64,11 @@ void rightRotate(NODO** root, NODO* y)
 	NODO* x = y->left; //Create new NODO and assign to x.right
 	y->left = x->right; //Move left sub-tree (y) on the x sub-tree
 
-	if (x->right != T->parent) x->right->parent = y;
+	if (x->right != sentinel) x->right->parent = y;
 
 	x->parent = y->parent; //Connect parent of x to y
 
-	if (y->parent == T->parent)
+	if (y->parent == sentinel)
 		*root = x;
 	else if (y == y->parent->right)
 		y->parent->right = x;
@@ -90,7 +127,43 @@ void insertRBT(NODO** root, NODO* node) {
 	NODO* y = NULL;
 	NODO* x = NULL;
 	NODO* T = *root;
-	//========= To Finsh =========//
+	
+	y = sentinel;
+	x = *root;
+
+	while (x != sentinel) {
+		y = x;
+		switch (alphabeticalOrder(node->word, x->word))	{
+		case 0:
+			x = x->left;
+		case 1:
+			x = x->right;
+		case 2:
+			return;
+		default:
+			break;
+		}
+	}
+	
+	node->parent = y;
+	if (y == sentinel)
+		*root = node;
+	else {
+		switch (alphabeticalOrder(node->word, x->word))	{
+		case 0:
+			x->left = node;
+		case 1:
+			x->right = node;
+		case 2:
+			return;
+		default:
+			break;
+		}
+	}
+	node->left = sentinel;
+	node->right = sentinel;
+	node->isBlack = false;
+	insertFixUp(root, &node);
 }
 
 NODO * createFromFile(char * nameFile)
@@ -142,7 +215,7 @@ NODO * importDictionary(char * fileInput)
 	return NULL;
 }
 
-int searchAdvance(NODO * dictionary, char * word, char ** primoRis, char ** secondoRis, char ** terzoRis)
+int searchAdvance(NODO * dictionary, char * word, char ** first, char ** second, char ** third)
 {
 	return 0;
 }
