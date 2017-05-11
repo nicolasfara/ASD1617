@@ -1,3 +1,13 @@
+#ifndef SOME_HEADER_FILE_H
+#define SOME_HEADER_FILE_H
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+
+#endif
+
+
 #define MAX_DEF 50
 #define MAX_WORD 20
 #define MIN_WORD 2
