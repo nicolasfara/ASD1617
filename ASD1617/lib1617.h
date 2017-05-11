@@ -4,9 +4,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
 
 #endif
-
 
 #define MAX_DEF 50
 #define MAX_WORD 20
@@ -147,7 +147,7 @@ Output:
 	-1 in caso di presenza del termine nel dizionario
 	-(-1) in caso di errori
 */
-int searchAdvance(NODO* dictionary, char* word, char** primoRis, char** secondoRis, char** terzoRis);
+int searchAdvance(NODO* dictionary, char* word, char** first, char** second, char** third);
 
 
 
