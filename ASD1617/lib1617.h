@@ -5,11 +5,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-<<<<<<< HEAD
 #include <ctype.h>
-=======
 #include <math.h>
->>>>>>> 551e9a2ae954d01dc3a4a6ccb478777ed5818b77
+
 
 #endif
 

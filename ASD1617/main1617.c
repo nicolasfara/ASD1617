@@ -9,7 +9,7 @@ char* randomString(int dim);
 
 int main(void) {
 	char* stringTemp;
-	srand(time(NULL));
+	srand((unsigned int)time(NULL));
 	
 	NODO* dictionary = createFromFile("fileTest1617.txt");
 
