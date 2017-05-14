@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include"lib1617.h"
+#include "lib1617.h"
 #include <time.h>
 
 char* randomWord(int dim);
