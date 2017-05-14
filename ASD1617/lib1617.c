@@ -84,7 +84,7 @@ void insertFixUp(NODO** root, NODO** node) {
 	NODO* z = *node; //Puntatore temporaneo al nodo
 	NODO* y = NULL;
 
-	while (z->parent->isBlack == false)	{
+	while ( z-> parent != NULL && z->parent->isBlack == false)	{
 		if (z->parent == z->parent->parent->left) {
 			y = z->parent->parent->left;
 			if (y->isBlack == false) {
@@ -131,13 +131,15 @@ void insertRBT(NODO** root, NODO* node) {
 	y = sentinel;
 	x = *root;
 
-	while (x != sentinel) {
+	while (x != sentinel && x != NULL) {
 		y = x;
 		switch (alphabeticalOrder(node->word, x->word))	{
 		case 0:
 			x = x->left;
+			break;
 		case 1:
 			x = x->right;
+			break;
 		case 2:
 			return;
 		default:
@@ -149,11 +151,13 @@ void insertRBT(NODO** root, NODO* node) {
 	if (y == sentinel)
 		*root = node;
 	else {
-		switch (alphabeticalOrder(node->word, x->word))	{
+		switch (alphabeticalOrder(node->word, y->word))	{
 		case 0:
-			x->left = node;
+			y->left = node;
+			break;
 		case 1:
-			x->right = node;
+			y->right = node;
+			break;
 		case 2:
 			return;
 		default:
@@ -168,11 +172,68 @@ void insertRBT(NODO** root, NODO* node) {
 
 NODO * createFromFile(char * nameFile)
 {
-	return NULL;
+	unsigned short i = 0;
+	char tmp;
+	NODO* root = NULL;
+	NODO* node = NULL;
+	FILE* f = NULL;
+	fopen_s(&f, nameFile, "r");
+	if (f == NULL)
+		return NULL;
+
+	createSentinel();
+		
+	while (true)
+	{
+		//Create node
+		node = (NODO*)malloc(sizeof(NODO));
+		if (node == NULL)
+			return NULL;
+
+		//Create word space
+		node->word = (char*)malloc(sizeof(char) * MAX_WORD);
+		if (node->word == NULL)
+			return NULL;
+
+		//Add record
+		node->def = NULL;
+		node->isBlack = false;
+		node->left = NULL;
+		node->right = NULL;
+		node->parent = NULL;
+
+		tmp = getc(f);
+		//Controllo che il carattere letto sia una lettera (anche accentata)
+		for (i = 0; ((tmp >= 65 && tmp <= 90) || (tmp >= 97 && tmp <= 122) || (tmp >= 128 && tmp <= 165)); i++) {
+			tmp = tolower(tmp);
+			node->word[i] = tmp;
+			tmp = getc(f);
+		}
+		node->word[i] = '\0'; //Add string terminator
+		//Check if the word is 2 char lenght
+		if (strlen(node->word) <= 2) {
+			free(node); //Release node
+		}
+		else {
+			insertRBT(&root, node); //Insert node in RBT
+			//printDictionary(root);
+		}
+		//Check if the file pointer is at the end
+		if (tmp == EOF)
+			break; //exit from the loop (infinity)
+	}
+
+	fclose(f);
+	return root;
 }
 
 void printDictionary(NODO * dictionary)
 {
+	if (dictionary != NULL && dictionary != sentinel) {
+		printDictionary(dictionary->left);
+		printf("%s\n", dictionary->word);
+		printDictionary(dictionary->right);
+	}
 }
 
 int countWord(NODO * dictionary)
