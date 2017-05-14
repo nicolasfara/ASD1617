@@ -5,13 +5,16 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include <math.h>
 
 #endif
 
 #define MAX_DEF 50
 #define MAX_WORD 20
 #define MIN_WORD 2
+#define ELEMENTS 30
 
+//NODO RBT
 typedef struct NODO {
 	char* word;
 	char* def;
@@ -21,6 +24,14 @@ typedef struct NODO {
 	struct NODO *parent;
 	//altri campi
 }NODO;
+
+//NODO ALBERO DI HUFFMAN
+typedef struct NODE{
+	int frequencies;
+	char letter;
+	struct NODE *left, *right;
+	struct NODE *next;
+} HNode;
 
 
 /*
