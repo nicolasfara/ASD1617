@@ -194,14 +194,14 @@ HNode * build_huffman_tree() {
 	if (temp == NULL)									//CONTROLLO L'ALLOCAZIONE
 		return NULL;
 
-	temp->frequencies = letter_frequencies[0];			//FREQUENZA DELLA LETTERA (CONTENUTA NELL'ARRAY)
+	//temp->frequencies = letter_frequencies[0];			//FREQUENZA DELLA LETTERA (CONTENUTA NELL'ARRAY)
 
 	for (i = 1; i < ELEMENTS; i++){						//PER OGNI LETTERA DOPO LA PRIMA, ALLOCO UN NODO (CREO UNA LISTA)
 		temp->next = allocates_node(i);					//ALLOCO UN NUOVO NODO E LO FACCIO PUNTARE DAL NEXT DEL PRECEDENTE
 		temp = temp->next;								//SPOSTO LA VAR TEMP AL NODO APPENA CREATO (O A NULL IN CASO D'ERRORE)
 		if (temp == NULL)								//CONTROLLO L'ALLOCAZIONE
 			return NULL;
-		temp->frequencies = letter_frequencies[i];		//ASSOCIO LA FREQUENZA DELLA LETTERA CONTENUTA NELL'ARRAY ALLA VARIABILE NEL NODO
+		//temp->frequencies = letter_frequencies[i];		//ASSOCIO LA FREQUENZA DELLA LETTERA CONTENUTA NELL'ARRAY ALLA VARIABILE NEL NODO
 	}
 
 	while (nodes_head->next != NULL){					//QUANDO HO ALTRI NODI OLTRE LA "RADICE" (SE NON CI SON STATI ERRORI PRECEDENTI CI SARA' SEMPRE ALMENO UN NODO; IN CASO CONTRARIO AVREBBE RESTITUITO NULL)		
@@ -358,7 +358,8 @@ void printDictionary(NODO * dictionary)
 {
 	if (dictionary != NULL && dictionary != sentinel) {
 		printDictionary(dictionary->left);
-		printf("%s\n", dictionary->word);
+		printf("%s ", dictionary->word);
+		printf("[%s]\n", dictionary->def);
 		printDictionary(dictionary->right);
 	}
 }
@@ -370,12 +371,27 @@ int countWord(NODO * dictionary)
 
 int insertWord(NODO ** dictionary, char * word)
 {
+	NODO* node = (NODO*)malloc(sizeof(NODO));
+	if (node == NULL)
+		return 1;
+
+	node->def = NULL;
+	node->isBlack = false;
+	node->left = NULL;
+	node->parent = NULL;
+	node->right = NULL;
+	node->word = (char *)malloc(sizeof(char) * MAX_WORD);
+	if (node->word == NULL)
+		return 1;
+	strcpy_s(node->word, MAX_WORD, word);
+
+	insertRBT(dictionary, node);
 	return 0;
 }
 
 int cancWord(NODO ** dictionary, char * word)
 {
-	return 0;
+
 }
 
 char * getWordAt(NODO * dictionary, int index)
