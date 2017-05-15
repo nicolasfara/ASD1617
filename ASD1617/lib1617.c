@@ -338,7 +338,7 @@ NODO * createFromFile(char * nameFile)
 		}
 		node->word[i] = '\0'; //Add string terminator
 		//Check if the word is 2 char lenght
-		if (strlen(node->word) <= 2) {
+		if (strlen(node->word) < 2) {
 			free(node); //Release node
 		}
 		else {
@@ -358,9 +358,20 @@ void printDictionary(NODO * dictionary)
 {
 	if (dictionary != NULL && dictionary != sentinel) {
 		printDictionary(dictionary->left);
-		printf("%s ", dictionary->word);
+		printf("\"%s\": ", dictionary->word);
 		printf("[%s]\n", dictionary->def);
 		printDictionary(dictionary->right);
+	}
+}
+
+//Function for print on file the dictionary
+void printDictionaryFile(NODO * dictionary, FILE *f)
+{
+	if (dictionary != NULL && dictionary != sentinel) {
+		printDictionaryFile(dictionary->left, f);
+		fprintf(f, "\"%s\": ", dictionary->word);
+		fprintf(f, "[%s]\n", dictionary->def);
+		printDictionaryFile(dictionary->right, f);
 	}
 }
 
@@ -371,6 +382,9 @@ int countWord(NODO * dictionary)
 
 int insertWord(NODO ** dictionary, char * word)
 {
+	if (strlen(word) < 2)
+		return 1;
+
 	NODO* node = (NODO*)malloc(sizeof(NODO));
 	if (node == NULL)
 		return 1;
@@ -411,6 +425,20 @@ char * searchDef(NODO * dictionary, char * word)
 
 int saveDictionary(NODO * dictionary, char * fileOutput)
 {
+	//check if the dictionary is empty
+	if (dictionary == NULL)
+		return -1;
+
+	//Create file for write on it
+	FILE* f = fopen(fileOutput, "w");	
+	//check if the open file was fine
+	if (f == NULL)
+		return -1;
+
+	//Print on file the dictionary
+	printDictionaryFile(dictionary, f);
+
+	fclose(f); //Close file
 	return 0;
 }
 
