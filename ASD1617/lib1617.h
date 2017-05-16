@@ -60,7 +60,7 @@ ESATTAMENTE in questo modo:
 */
 void printDictionary(NODO*  dictionary);
 
-
+//COMPLETA
 /*
 Input:
 	-dictionary: la struttura dati in cui avete memorizzato il dizionario
@@ -68,7 +68,6 @@ Output:
 	-il numero di parole salvato nel dizionario
 */
 int countWord(NODO* dictionary);
-
 
 
 /*
@@ -92,8 +91,7 @@ Output:
 */
 int cancWord(NODO** dictionary, char* word);
 
-
-
+//COMPLETA
 /*
 Input:
 	-dictionary: la struttura dati in cui avete memorizzato il dizionario
@@ -161,7 +159,6 @@ Output:
 	-(-1) in caso di errori
 */
 int searchAdvance(NODO* dictionary, char* word, char** first, char** second, char** third);
-
 
 
 /*

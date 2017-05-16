@@ -2,6 +2,10 @@
 
 NODO* sentinel = NULL; //Sentinella per le foglie e padre della radice
 
+								//   A	 B	 C	 D	  E	  F	  G	  H	  I	  J  K  L   M   N   O   P   Q  R   S   T   U   V   W   X  Y	  Z	 SPC NULL NL  '
+int letter_frequencies[ELEMENTS] = { 81, 15, 28, 43, 128, 23, 20, 61, 71, 2, 1, 40, 24, 69, 76, 20, 1, 61, 64, 91, 28, 10, 24, 1, 20, 1, 130, 80, 80, 5 };
+
+
 //PROTOTIPI FUNZIONI AUSILIARIE
 int createSentinel();
 unsigned short alphabeticalOrder(char *, char *);
@@ -185,6 +189,7 @@ void insertRBT(NODO** root, NODO* node) {
 	insertFixUp(root, &node);
 }
 
+
 //CREA L'ALBERO DI HUFFMAN
 HNode * build_huffman_tree() {
 	HNode *temp, *nodes_head;
@@ -194,14 +199,14 @@ HNode * build_huffman_tree() {
 	if (temp == NULL)									//CONTROLLO L'ALLOCAZIONE
 		return NULL;
 
-	//temp->frequencies = letter_frequencies[0];			//FREQUENZA DELLA LETTERA (CONTENUTA NELL'ARRAY)
+	temp->frequencies = letter_frequencies[0];			//FREQUENZA DELLA LETTERA (CONTENUTA NELL'ARRAY)
 
 	for (i = 1; i < ELEMENTS; i++){						//PER OGNI LETTERA DOPO LA PRIMA, ALLOCO UN NODO (CREO UNA LISTA)
 		temp->next = allocates_node(i);					//ALLOCO UN NUOVO NODO E LO FACCIO PUNTARE DAL NEXT DEL PRECEDENTE
 		temp = temp->next;								//SPOSTO LA VAR TEMP AL NODO APPENA CREATO (O A NULL IN CASO D'ERRORE)
 		if (temp == NULL)								//CONTROLLO L'ALLOCAZIONE
 			return NULL;
-		//temp->frequencies = letter_frequencies[i];		//ASSOCIO LA FREQUENZA DELLA LETTERA CONTENUTA NELL'ARRAY ALLA VARIABILE NEL NODO
+		temp->frequencies = letter_frequencies[i];		//ASSOCIO LA FREQUENZA DELLA LETTERA CONTENUTA NELL'ARRAY ALLA VARIABILE NEL NODO
 	}
 
 	while (nodes_head->next != NULL){					//QUANDO HO ALTRI NODI OLTRE LA "RADICE" (SE NON CI SON STATI ERRORI PRECEDENTI CI SARA' SEMPRE ALMENO UN NODO; IN CASO CONTRARIO AVREBBE RESTITUITO NULL)		
@@ -375,9 +380,12 @@ void printDictionaryFile(NODO * dictionary, FILE *f)
 	}
 }
 
-int countWord(NODO * dictionary)
+//CONTA LE PAROLE DEL DIZIONARIO - COMPLETA
+int countWord(NODO *n)
 {
-	return 0;
+	if (n->word == NULL)									//CASO BASE (SENTINELLA)
+		return 0;
+	return countWord(n->left) + countWord(n->right) + 1;	//NUMERO PAROLE DEL RAMO SINISTRO + DESTRO + IL NODO
 }
 
 int insertWord(NODO ** dictionary, char * word)
@@ -408,9 +416,22 @@ int cancWord(NODO ** dictionary, char * word)
 
 }
 
-char * getWordAt(NODO * dictionary, int index)
+//OTTIENE L'INDIRIZZO DELLA STRINGA CHE SI TROVA A NODO DI INDICE X
+char *getWordAt(NODO *n, int index)
 {
-	return NULL;
+	static int counter = 0;
+	char *result = NULL;
+
+	if (n->word == NULL)						//CASO BASE (SENTINELLA)
+		return NULL;
+
+	result = getWordAt(n->left, index);			//CONTROLLO IL FIGLIO SINISTRO
+	if (result != NULL)							//SE HO TROVATO LA PAROLA LA RESTITUISCO
+		return result;
+	counter++;									//...ALTRIMENTI INCREMENTO IL CONTATORE
+	if (counter == index)						//SE SONO ALLA I-ESIMA PAROLA (PARTENDO A CONTARE DA 1)
+		return n->word;							//LA RESTITUISCO
+	return getWordAt(n->right, index);			//ALTRIMENTI RESTITUISCO  QUELLO CHE MI PASSA IL FIGLIO DESTRO
 }
 
 int insertDef(NODO * dictionary, char * word, char * def)
