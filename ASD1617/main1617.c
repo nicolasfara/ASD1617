@@ -12,12 +12,12 @@ int main(void) {
 	srand((unsigned int)time(NULL));
 	
 	NODO* dictionary = createFromFile("fileTest1617.txt");
-
+	
 	printf("\nSTAMPA DEL DIZIONARIO:\n");
 	printDictionary(dictionary);
 
 	printf("\nNumero di parole salvate nel dizionario : %d\n\n", countWord(dictionary));
-
+	
 	insertWord(&dictionary, "tavolo");
 	insertWord(&dictionary, "b");
 	insertWord(&dictionary, "zoo");
@@ -43,8 +43,6 @@ int main(void) {
 	printf("\nRicerca Parola \"%s\" -> definizione : [%s]\n\n", getWordAt(dictionary, 7), searchDef(dictionary, getWordAt(dictionary, 7)));
 	stringTemp = "eftd";
 	printf("\nRicerca Parola \"%s\" -> definizione : [%s]\n\n", stringTemp, searchDef(dictionary, stringTemp));
-	
-
 
 	system("PAUSE");
 	return (0);

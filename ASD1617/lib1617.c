@@ -18,7 +18,8 @@ HNode * build_huffman_tree();
 HNode * allocates_node(int);
 HNode * extract_smaller_one(HNode **);
 void fill_table(unsigned int *, HNode *, unsigned int);
-void invert_codes(int *, int *);
+int compress_node(NODO *, FILE *, unsigned int *);
+void compress_string(char *, FILE *, unsigned int *);
 
 //FUNZIONI
 int createSentinel() {
@@ -190,7 +191,7 @@ void insertRBT(NODO** root, NODO* node) {
 }
 
 
-//CREA L'ALBERO DI HUFFMAN
+
 HNode * build_huffman_tree() {
 	HNode *temp, *nodes_head;
 	int i;
@@ -223,7 +224,6 @@ HNode * build_huffman_tree() {
 	return nodes_head;									//RITORNO LA TESTA DELLA LISTA CHE ORA CORRISPONDERA' ALLA RADICE DELL'ALBERO DI HUFFMAN
 }
 
-//ALLOCA I NODI DELL'ALBERO
 HNode * allocates_node(int i) {
 	HNode *node = (HNode *)malloc(sizeof(HNode));		//ALLOCO IL NODO
 	if (node == NULL)									//CONTROLLO L'ALLOCAZIONE
@@ -235,7 +235,6 @@ HNode * allocates_node(int i) {
 	return node;										//PUNTATORE AL NODO
 }
 
-//ESTRAE IL NODO CON LETTERA DI FREQUENZA MINORE
 HNode * extract_smaller_one(HNode **nodes_head) {
 	HNode *minimum = *nodes_head;
 	HNode *scrolling = *nodes_head, *previous = NULL;
@@ -267,7 +266,6 @@ HNode * extract_smaller_one(HNode **nodes_head) {
 	return minimum;										//RESTITUISCO L'INDIRIZZO DEL NODO CON FREQUENZA MINORE
 }
 
-//COSTRUISCE LA TABELLA DELLE CONVERSIONI (1 = 0, 2 = 1)
 void fill_table(unsigned int *code_table, HNode *tree_node, unsigned int code) {
 	if (tree_node->letter != 127)									//SE SIAMO ALLA FOGLIA (C'E' UN VALORE != DA 127)
 		code_table[(int)tree_node->letter] = code;					//"CODE" HA ASSUNTO IL VALORE "BINARIO" DEL PERCORSO DA RADICE->FOGLIA
@@ -285,21 +283,172 @@ void fill_table(unsigned int *code_table, HNode *tree_node, unsigned int code) {
 	return;
 }
 
-//INVERTE IL VALORE "BINARIO" DA SX->DX A DX->SX NELLA TABELLA
-void invert_codes(int *code_table, int *code_table2) {
-	int i, code, rev;
+int compress_node(NODO * n, FILE * output, int *code_table) {
+	if (n == NULL || n->word == NULL)
+		return -1;
+	compress_node(n->left, output, code_table);
+	compress_string(n->word, output, code_table);
+	compress_string(n->def, output, code_table);
+	compress_node(n->right, output, code_table);
 
-	for (i = 0; i < ELEMENTS; i++){			//PER OGNI LETTERA
-		code = code_table[i];				//COPIO LA CODIFICA PRE-ESISTENTE
-		rev = 0;							//AZZERO IL BYTE "REVERSE"
-		while (code > 0){					//FIN QUANDO NON HO FINITO DI "RIBALTARE" I "BIT" (ES 101->10->1->0)
-			rev = rev * 10 + code % 10;		//MOLTIPLICO PER 10 I NUMERI GIA' RIBALTATI PER "TRASLARLI" E GLI AGGIUNGO IL RESTO DELLA DIVISIONE PER 10 (IL "BIT" SUCCESSIVO)
-			code /= 10;						//"ELIMINO" IL "BIT" CHE HO APPENA RIBALTATO
+	return 0;
+}
+
+void compress_string(char *n_string, FILE *output, unsigned int *code_table) {
+	char bit, c, byte = 0;										//1 BYTE
+	unsigned int code, lenght, i = 0, bits_left = 8;
+
+	do{
+		if (n_string == NULL) {
+			lenght = (int)log10((code_table[27]) + 1);			//LUNGHEZZA BINARIA DEL NUMERO CODIFICATO
+			code = code_table[27];								//CODIFICA BIN
 		}
-		code_table2[i] = rev;				//SCRIVO LA CODIFICA RIBALTATA NELLA TABELLA
+		else {
+			c = n_string[i];
+
+			if (c >= 97 && c <= 122) {							//LETTERE MINUSCOLE			
+				lenght = (int)log10((code_table[c - 97]) + 1);	//LENGHT = LUNGHEZZA CODIFICA (CODIFICA ASCII DELLE LETTERE - 97 = INDICE LETTERA NELLA TABELLA)
+				code = code_table[c - 97];						//CODIFICA "BINARIA" DELLA LETTERA
+			}
+			if (c == 32) {										//CARATTERE SPAZIO
+				lenght = (int)log10((code_table[26]) + 1);		//LUNGHEZZA BINARIA DEL NUMERO CODIFICATO
+				code = code_table[26];							//CODIFICA BIN
+			}
+			if (c == 0) {										//CARATTERE NULL
+				lenght = (int)log10((code_table[27]) + 1);		//LUNGHEZZA BINARIA DEL NUMERO CODIFICATO
+				code = code_table[27];							//CODIFICA BIN
+			}
+			if (c == 10) {										//CARATTERE "NEW LINE"
+				lenght = (int)log10((code_table[28]) + 1);		//LUNGHEZZA BINARIA DEL NUMERO CODIFICATO
+				code = code_table[28];							//CODIFICA BIN
+			}
+			if (c == 96) {										//CARATTERE "APOSTROFO"
+				lenght = (int)log10((code_table[29]) + 1);		//LUNGHEZZA BINARIA DEL NUMERO CODIFICATO
+				code = code_table[29];							//CODIFICA BIN
+			}
+		}
+		while (lenght + 1 > 0)								//MI SCORRO TUTTI I "BIT" DELLA CODIFICA
+		{
+			bit = (code / pow(10, lenght)) - 1;				//PRENDO "BIT PER BIT" LA CODIFICA DELLA LETTERA (-1 PERCHE' GLI 0 = 1 E 1 = 2 NELLA TABELLA)				
+			switch (bit)
+			{
+			case 3:
+				bit = 0;
+				lenght++;
+				code -= 3;
+				break;
+			case 4:
+				bit = 1;
+				lenght++;
+				code -= 4;
+				break;
+			case 5:
+				bit = 0;
+				lenght++;
+				code -= 4;
+				break;
+			case 6:
+				bit = 1;
+				lenght++;
+				code -= 5;
+				break;
+			default:
+				code -= (bit + 1)* pow(10, lenght);			//ELIMINO IL BIT VALUTATO
+			}
+			byte = byte | bit;								//PRENDO LA CODIFIA BINARIA DEL RESTO E LA METTO IN OR CON LE PRECEDENTI
+			bits_left--;									//BIT NON "UTILIZZATI"
+			lenght--;										//LUNGHEZZA DELLA CODIFICA RIMANENTE DA INSERIRE NEL FILE
+			if (bits_left == 0) {							//SE HO RIEMPITO IL BYTE CON LA CODIFICA DELLE VARIE LETTERE
+				fputc(byte, output);						//SCRIVO LA CODIFICA
+				byte = 0;									//AZZERO X PER POTER "SCRIVERE" IL NUOVO BYTE
+				bits_left = 8;								//RESETTO I BYTE "RIMANENTI" DI "BYTE"
+			}
+			byte = byte << 1;								//AVENDO INSERITO UNA CODIFICA "SHIFTO" I BIT PER NON SOVRASCRIVERLI
+		}
+		i++;
+	} while (n_string != NULL && c != '\0');
+
+	if (bits_left != 8){									//SE CODIFICANDO L'INTERA LINEA NON HO "RIEMPITO" IL BYTE
+		byte = byte << (bits_left - 1);						//SHIFTO I BIT A SINISTA IN MODO DA NON AVERE "ZERI" CHE SI FRAPPONGANO FRA L'ULTIMA E LA PRECEDENTE LETTERA
+		fputc(byte, output);								//SCRIVO IL BYTE NEL FILE
 	}
 
 	return;
+}
+
+int decompress_file(FILE *input, NODO **dict_root, HNode *tree){
+	NODO *nodo_pointer;
+	HNode *current = tree;
+	char c, bit, *string;
+	char mask = 1 << 7;
+	int i, k = 0, bit_left;
+
+	nodo_pointer = (NODO *)malloc(sizeof(NODO));
+	string = (char *)malloc(sizeof(char)*20);
+	if (nodo_pointer == NULL || string == NULL)
+		return -1;
+	nodo_pointer->word = string;
+
+	while ((c = fgetc(input)) != EOF){									//ACQUISISCE CICLICAMENTE I CARATTERI FINCHE' NON ARRIVA ALLA FINE DEL FILE
+		for (i = 0; i<8; i++){											//PER OGNI BIT
+			bit = c & mask;												//PRENDE IL PRIMO BIT (AND CON 10000000)
+			c = c << 1;													//SHIFTO IL BYTE
+			if (bit == 0)												//SE IL BIT "ESTRATTO" E' "ZERO"
+				current = current->left;								//MI SPOSTO SUL RAMO SINISTRO DELL'ALBERO
+			else
+				current = current->right;
+
+			if (current->letter != 127){								//SE SONO GIUNTO AD UNA FOGLIA
+				if (current->letter >= 0 && current->letter <= 25) {	//SE E' UNA LETTERA
+					string[k] = current->letter + 97;
+					k++;
+				}
+				if (current->letter == 26) {							//SE E' LO SPAZIO
+					string[k] = 32;
+					k++;
+				}
+				if (current->letter == 27)	{							//SE E' NULL
+					if (k != 0)
+						string[k] = '\0';
+					else {
+						free(string);
+						if (string == nodo_pointer->word)
+							nodo_pointer->word = NULL;
+						else
+							nodo_pointer->def = NULL;
+						string = NULL;
+					}
+					if (string == nodo_pointer->word) {
+						string = (char *)malloc(sizeof(char) * 50);
+						nodo_pointer->def = string;
+					}
+					else {
+						insertRBT(dict_root, nodo_pointer);
+						nodo_pointer = (NODO *)malloc(sizeof(NODO));
+						if (nodo_pointer == NULL)
+							return -1;
+						string = (char *)malloc(sizeof(char) * 20);
+						nodo_pointer->word = string;
+					}
+					if (string == NULL)
+						return -1;
+					k = 0;
+					i = 7;
+				}
+				if (current->letter == 28) {							//SE E' NEW LINE
+					string[k] = 10;
+					k++;
+				}
+				if (current->letter == 29) {							//SE E' L'APOSTROFO
+					string[k] = 96;
+					k++;
+				}														//"STAMPO" NEW LINE NEL FILE
+				current = tree;											//TORNO ALLA RADICE
+			}
+		}
+	}
+
+	return 0;
 }
 
 NODO * createFromFile(char * nameFile)
@@ -380,10 +529,9 @@ void printDictionaryFile(NODO * dictionary, FILE *f)
 	}
 }
 
-//CONTA LE PAROLE DEL DIZIONARIO - COMPLETA
 int countWord(NODO *n)
 {
-	if (n->word == NULL)									//CASO BASE (SENTINELLA)
+	if (n == NULL || n->word == NULL)						//CASO BASE (SENTINELLA)
 		return 0;
 	return countWord(n->left) + countWord(n->right) + 1;	//NUMERO PAROLE DEL RAMO SINISTRO + DESTRO + IL NODO
 }
@@ -416,7 +564,6 @@ int cancWord(NODO ** dictionary, char * word)
 
 }
 
-//OTTIENE L'INDIRIZZO DELLA STRINGA CHE SI TROVA A NODO DI INDICE X
 char *getWordAt(NODO *n, int index)
 {
 	static int counter = 0;
@@ -473,12 +620,32 @@ int searchAdvance(NODO * dictionary, char * word, char ** first, char ** second,
 	return 0;
 }
 
-int compressHuffman(NODO * dictionary, char * fileOutput)
+int compressHuffman(NODO * dictionary, char * file_name)
 {
+	unsigned int code_table[ELEMENTS];
+	FILE *output_file = fopen(file_name, "w");
+	HNode *root = build_huffman_tree();
+	if (root == NULL)
+		return -1;
+	fill_table(code_table, root, 0);
+
+	compress_node(dictionary, output_file, code_table);
+	fclose(output_file);
+
 	return 0;
 }
 
-int decompressHuffman(char * fileInput, NODO ** dictionary)
-{
-	return 0;
+int decompressHuffman(char * file_name, NODO ** dictionary)
+{ 
+	int x = 0;
+	FILE *input_file = fopen(file_name, "r");
+	HNode *root = build_huffman_tree();
+	if (sentinel == NULL)
+		x = createSentinel();
+	if (root == NULL || input_file == NULL || x == -1)
+		return -1;
+	x = decompress_file(input_file, dictionary, root);
+	fclose(input_file);
+
+	return x;
 }
