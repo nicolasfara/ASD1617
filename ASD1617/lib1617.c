@@ -20,6 +20,7 @@ HNode * extract_smaller_one(HNode **);
 void fill_table(unsigned int *, HNode *, unsigned int);
 int compress_node(NODO *, FILE *, unsigned int *);
 void compress_string(char *, FILE *, unsigned int *);
+char *find_index_word(NODO *, int, int *);
 
 //FUNZIONI
 int createSentinel() {
@@ -270,7 +271,7 @@ void fill_table(unsigned int *code_table, HNode *tree_node, unsigned int code) {
 	if (tree_node->letter != 127)									//SE SIAMO ALLA FOGLIA (C'E' UN VALORE != DA 127)
 		code_table[(int)tree_node->letter] = code;					//"CODE" HA ASSUNTO IL VALORE "BINARIO" DEL PERCORSO DA RADICE->FOGLIA
 	else {															//SE NON SONO ANCORA GIUNTO ALLA FOGLIA
-		if (code >= pow(10, 9)) {									//QUANDO CODE SUPERA IL MILIARDO (NON E' PIU' POSSIBILE CONTENERLO IN UN INT)
+		if /*code % 10 =1,0*/(code >= pow(10, 9)) {									//QUANDO CODE SUPERA IL MILIARDO (NON E' PIU' POSSIBILE CONTENERLO IN UN INT)
 			fill_table(code_table, tree_node->left, code + 3);		//SE VADO A SX IL RAMO HA VALORE 0(1) - IN QUESTO CASO E' STATO MESSO +3 PER EVITARE CHE L'INT RAGGIUNGESSE I 10 MILIARDI
 			fill_table(code_table, tree_node->right, code + 5);		//SE VADO A DX IL RAMO HA VALORE 1(2) - IN QUESTO CASO E' STATO MESSO +5 PER EVITARE CHE L'INT RAGGIUNGESSE I 10 MILIARDI
 		}
@@ -374,6 +375,22 @@ void compress_string(char *n_string, FILE *output, unsigned int *code_table) {
 	}
 
 	return;
+}
+
+char *find_index_word(NODO *n, int index, int *counter_pt) {
+	char *result = NULL;
+
+	if (n->word == NULL)						//CASO BASE (SENTINELLA)
+		return NULL;
+
+	result = find_index_word(n->left, index, counter_pt);//CONTROLLO IL FIGLIO SINISTRO
+	if (result != NULL)							//SE HO TROVATO LA PAROLA LA RESTITUISCO
+		return result;
+
+	if (*counter_pt == index)						//SE SONO ALLA I-ESIMA PAROLA (PARTENDO A CONTARE DA 1)
+		return n->word;							//LA RESTITUISCO
+	(*counter_pt)++;
+	return find_index_word(n->right, index, counter_pt);	//ALTRIMENTI RESTITUISCO  QUELLO CHE MI PASSA IL FIGLIO DESTRO
 }
 
 int decompress_file(FILE *input, NODO **dict_root, HNode *tree){
@@ -564,21 +581,9 @@ int cancWord(NODO ** dictionary, char * word)
 
 }
 
-char *getWordAt(NODO *n, int index)
-{
-	static int counter = 0;
-	char *result = NULL;
-
-	if (n->word == NULL)						//CASO BASE (SENTINELLA)
-		return NULL;
-
-	result = getWordAt(n->left, index);			//CONTROLLO IL FIGLIO SINISTRO
-	if (result != NULL)							//SE HO TROVATO LA PAROLA LA RESTITUISCO
-		return result;
-	counter++;									//...ALTRIMENTI INCREMENTO IL CONTATORE
-	if (counter == index)						//SE SONO ALLA I-ESIMA PAROLA (PARTENDO A CONTARE DA 1)
-		return n->word;							//LA RESTITUISCO
-	return getWordAt(n->right, index);			//ALTRIMENTI RESTITUISCO  QUELLO CHE MI PASSA IL FIGLIO DESTRO
+char *getWordAt(NODO *n, int index){
+	int counter = 0;
+	return find_index_word(n, index, &counter);
 }
 
 int insertDef(NODO * dictionary, char * word, char * def)
