@@ -2,8 +2,8 @@
 
 NODO* sentinel = NULL; //Sentinella per le foglie e padre della radice
 
-								//   A	 B	 C	 D	  E	  F	  G	  H	  I	  J  K  L   M   N   O   P   Q  R   S   T   U   V   W   X  Y	  Z	 SPC NULL NL  '
-int letter_frequencies[ELEMENTS] = { 81, 15, 28, 43, 128, 23, 20, 61, 71, 2, 1, 40, 24, 69, 76, 20, 1, 61, 64, 91, 28, 10, 24, 1, 20, 1, 130, 80, 80, 5 };
+								//   A	 B	 C	 D	  E	  F	  G	  H	  I	  J  K  L   M   N   O   P   Q  R   S   T   U   V   W   X  Y	  Z	 SPC NULL NL  '  EOF
+int letter_frequencies[ELEMENTS] = { 81, 15, 28, 43, 128, 23, 20, 61, 71, 2, 1, 40, 24, 69, 76, 20, 1, 61, 64, 91, 28, 10, 24, 1, 20, 1, 130, 80, 80, 5, 80};
 
 
 //PROTOTIPI FUNZIONI AUSILIARIE
@@ -271,7 +271,7 @@ void fill_table(unsigned int *code_table, HNode *tree_node, unsigned int code) {
 	if (tree_node->letter != 127)									//SE SIAMO ALLA FOGLIA (C'E' UN VALORE != DA 127)
 		code_table[(int)tree_node->letter] = code;					//"CODE" HA ASSUNTO IL VALORE "BINARIO" DEL PERCORSO DA RADICE->FOGLIA
 	else {															//SE NON SONO ANCORA GIUNTO ALLA FOGLIA
-		if /*code % 10 =1,0*/(code >= pow(10, 9)) {									//QUANDO CODE SUPERA IL MILIARDO (NON E' PIU' POSSIBILE CONTENERLO IN UN INT)
+		if (code >= pow(10, 9)) {									//QUANDO CODE SUPERA IL MILIARDO (NON E' PIU' POSSIBILE CONTENERLO IN UN INT)
 			fill_table(code_table, tree_node->left, code + 3);		//SE VADO A SX IL RAMO HA VALORE 0(1) - IN QUESTO CASO E' STATO MESSO +3 PER EVITARE CHE L'INT RAGGIUNGESSE I 10 MILIARDI
 			fill_table(code_table, tree_node->right, code + 5);		//SE VADO A DX IL RAMO HA VALORE 1(2) - IN QUESTO CASO E' STATO MESSO +5 PER EVITARE CHE L'INT RAGGIUNGESSE I 10 MILIARDI
 		}
@@ -326,6 +326,10 @@ void compress_string(char *n_string, FILE *output, unsigned int *code_table) {
 			if (c == 96) {										//CARATTERE "APOSTROFO"
 				lenght = (int)log10((code_table[29]) + 1);		//LUNGHEZZA BINARIA DEL NUMERO CODIFICATO
 				code = code_table[29];							//CODIFICA BIN
+			}
+			if (c == 27) {										//CARATTERE "ESCAPE"
+				lenght = (int)log10((code_table[ELEMENTS -1]) + 1);		//LUNGHEZZA BINARIA DEL NUMERO CODIFICATO
+				code = code_table[ELEMENTS - 1];				//CODIFICA BIN
 			}
 		}
 		while (lenght + 1 > 0)								//MI SCORRO TUTTI I "BIT" DELLA CODIFICA
@@ -398,7 +402,7 @@ int decompress_file(FILE *input, NODO **dict_root, HNode *tree){
 	HNode *current = tree;
 	char c, bit, *string;
 	char mask = 1 << 7;
-	int i, k = 0, bit_left;
+	int i, k = 0, bit_left, end_of_file = 0;
 
 	nodo_pointer = (NODO *)malloc(sizeof(NODO));
 	string = (char *)malloc(sizeof(char)*20);
@@ -406,7 +410,10 @@ int decompress_file(FILE *input, NODO **dict_root, HNode *tree){
 		return -1;
 	nodo_pointer->word = string;
 
-	while ((c = fgetc(input)) != EOF){									//ACQUISISCE CICLICAMENTE I CARATTERI FINCHE' NON ARRIVA ALLA FINE DEL FILE
+	if ((c = fgetc(input)) == EOF)
+		return -1;
+
+ 	while (end_of_file != 1){											//ACQUISISCE CICLICAMENTE I CARATTERI FINCHE' NON ARRIVA ALLA FINE DEL FILE
 		for (i = 0; i<8; i++){											//PER OGNI BIT
 			bit = c & mask;												//PRENDE IL PRIMO BIT (AND CON 10000000)
 			c = c << 1;													//SHIFTO IL BYTE
@@ -460,9 +467,13 @@ int decompress_file(FILE *input, NODO **dict_root, HNode *tree){
 					string[k] = 96;
 					k++;
 				}														//"STAMPO" NEW LINE NEL FILE
+				if (current->letter == ELEMENTS -1) {					//SE E' L'EOF CREATO DA ME
+					end_of_file = 1;
+				}
 				current = tree;											//TORNO ALLA RADICE
 			}
 		}
+		c = fgetc(input);
 	}
 
 	return 0;
@@ -627,6 +638,7 @@ int searchAdvance(NODO * dictionary, char * word, char ** first, char ** second,
 
 int compressHuffman(NODO * dictionary, char * file_name)
 {
+	char eof = 27;
 	unsigned int code_table[ELEMENTS];
 	FILE *output_file = fopen(file_name, "w");
 	HNode *root = build_huffman_tree();
@@ -635,6 +647,7 @@ int compressHuffman(NODO * dictionary, char * file_name)
 	fill_table(code_table, root, 0);
 
 	compress_node(dictionary, output_file, code_table);
+	compress_string(&eof, output_file, code_table);
 	fclose(output_file);
 
 	return 0;

@@ -25,12 +25,14 @@ int main(void) {
 	printf("\nNumero di parole salvate nel dizionario : %d\n\n", countWord(dictionary));
 	printf("\nSTAMPA DEL DIZIONARIO dopo 3 inserimenti:\n");
 	printDictionary(dictionary);
+	printf("\nNumero di parole salvate nel dizionario : %d\n\n", countWord(dictionary));
 
 	cancWord(&dictionary, getWordAt(dictionary, 5));
 	cancWord(&dictionary, getWordAt(dictionary, 1));
 	cancWord(&dictionary, getWordAt(dictionary, 0));
 	printf("\nSTAMPA DEL DIZIONARIO dopo 3 cancellazioni:\n");
 	printDictionary(dictionary);
+	printf("\nNumero di parole salvate nel dizionario : %d\n\n", countWord(dictionary));
 	
 	insertDef(dictionary, getWordAt(dictionary, 2), "una definizione");
 	insertDef(dictionary, getWordAt(dictionary, 4), "altra definizione");
