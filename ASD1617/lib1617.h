@@ -35,6 +35,12 @@ typedef struct NODE{
 	struct NODE *next;
 } HNode;
 
+//
+typedef struct MSW {		//most similar word
+	char **w_pointer;
+	short int distance;
+} MSWNode;
+
 
 /*
 Input: 

@@ -1,6 +1,6 @@
 #include "lib1617.h"
 
-NODO* sentinel = NULL; //Sentinella per le foglie e padre della radice
+NODO *sentinel = NULL; //Sentinella per le foglie e padre della radice
 
 								//   A	 B	 C	 D	  E	  F	  G	  H	  I	  J  K  L   M   N   O   P   Q  R   S   T   U   V   W   X  Y	  Z	 SPC NULL NL  '  EOF
 int letter_frequencies[ELEMENTS] = { 81, 15, 28, 43, 128, 23, 20, 61, 71, 2, 1, 40, 24, 69, 76, 20, 1, 61, 64, 91, 28, 10, 24, 1, 20, 1, 130, 80, 80, 5, 80};
@@ -21,6 +21,8 @@ void fill_table(unsigned int *, HNode *, unsigned int);
 int compress_node(NODO *, FILE *, unsigned int *);
 void compress_string(char *, FILE *, unsigned int *);
 char *find_index_word(NODO *, int, int *);
+int decompress_file(FILE *, NODO **, HNode *);
+int search_in_node(NODO *, MSWNode *, char *);
 
 //FUNZIONI
 int createSentinel() {
@@ -400,9 +402,10 @@ char *find_index_word(NODO *n, int index, int *counter_pt) {
 int decompress_file(FILE *input, NODO **dict_root, HNode *tree){
 	NODO *nodo_pointer;
 	HNode *current = tree;
-	char c, bit, *string;
-	char mask = 1 << 7;
-	int i, k = 0, bit_left, end_of_file = 0;
+	register char c;
+	register int k = 0;
+	char bit, *string;
+	int i, end_of_file = 0;
 
 	nodo_pointer = (NODO *)malloc(sizeof(NODO));
 	string = (char *)malloc(sizeof(char)*20);
@@ -415,7 +418,7 @@ int decompress_file(FILE *input, NODO **dict_root, HNode *tree){
 
  	while (end_of_file != 1){											//ACQUISISCE CICLICAMENTE I CARATTERI FINCHE' NON ARRIVA ALLA FINE DEL FILE
 		for (i = 0; i<8; i++){											//PER OGNI BIT
-			bit = c & mask;												//PRENDE IL PRIMO BIT (AND CON 10000000)
+			bit = c & 0x80;												//PRENDE IL PRIMO BIT (AND CON 10000000)
 			c = c << 1;													//SHIFTO IL BYTE
 			if (bit == 0)												//SE IL BIT "ESTRATTO" E' "ZERO"
 				current = current->left;								//MI SPOSTO SUL RAMO SINISTRO DELL'ALBERO
@@ -477,6 +480,22 @@ int decompress_file(FILE *input, NODO **dict_root, HNode *tree){
 	}
 
 	return 0;
+}
+
+int search_in_node(NODO *n, MSWNode *head, char *word) {
+	int ris, dist;
+	if (n == NULL)
+		return -1;
+
+	ris = search_in_node(n->left, head);
+	dist = diff(n->word);
+	if (diff(word) == dist)
+		ris = 1;
+	else {
+		
+		}
+	}
+	return ris | search_in_node(n->right, head);
 }
 
 NODO * createFromFile(char * nameFile)
@@ -633,6 +652,14 @@ NODO * importDictionary(char * fileInput)
 
 int searchAdvance(NODO * dictionary, char * word, char ** first, char ** second, char ** third)
 {
+	MSWNode head[3];
+
+	head[0].w_pointer = first;
+	head[1].w_pointer = second;
+	head[2].w_pointer = third;
+
+	search_in_node(dictionary, head, word);
+
 	return 0;
 }
 
