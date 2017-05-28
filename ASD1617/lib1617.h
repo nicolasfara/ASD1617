@@ -35,7 +35,7 @@ typedef struct NODE{
 	struct NODE *next;
 } HNode;
 
-//
+//NODO AUSILIARIO RICERCA PAROLE PIU' SIMILI
 typedef struct MSW {		//most similar word
 	char **w_pointer;
 	short int distance;
@@ -66,7 +66,7 @@ ESATTAMENTE in questo modo:
 */
 void printDictionary(NODO*  dictionary);
 
-//COMPLETA
+
 /*
 Input:
 	-dictionary: la struttura dati in cui avete memorizzato il dizionario
@@ -97,7 +97,7 @@ Output:
 */
 int cancWord(NODO** dictionary, char* word);
 
-//COMPLETA
+
 /*
 Input:
 	-dictionary: la struttura dati in cui avete memorizzato il dizionario

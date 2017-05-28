@@ -46,13 +46,16 @@ int main(void) {
 	stringTemp = "eftd";
 	printf("\nRicerca Parola \"%s\" -> definizione : [%s]\n\n", stringTemp, searchDef(dictionary, stringTemp));
 
-	compressHuffman(dictionary, "text.txt");
+	/*compressHuffman(dictionary, "text.txt");
 	dictionary = NULL;
+	printf("\n\n\nHUFFF\n\n\n");
 	decompressHuffman("text.txt", &dictionary);
 	printDictionary(dictionary);
 	printf("\nNumero di parole salvate nel dizionario : %d\n\n", countWord(dictionary));
-	char **first = NULL, **second = NULL, **third= NULL, *word = NULL;
-	searchAdvance(dictionary, word, first, second, third);
+	char *first = NULL, *second = NULL, *third= NULL, *word = NULL;
+	printf("%d\n", searchAdvance(dictionary, word, &first, &second, &third));
+	word = "algoritmo";
+	printf("%d %s %s %s\n", searchAdvance(dictionary, word, &first, &second, &third), first, second, third);*/
 
 	system("PAUSE");
 	return (0);
