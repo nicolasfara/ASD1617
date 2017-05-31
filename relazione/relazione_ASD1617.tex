@@ -1,0 +1,100 @@
+% !TeX spellcheck = it_IT
+% --------------------------------------------------------------------
+% Preamble
+% --------------------------------------------------------------------
+\documentclass[paper=a4, fontsize=11pt,twoside]{scrartcl}   % KOMA
+
+\usepackage[a4paper,pdftex]{geometry}   % A4paper margins
+\usepackage[utf8]{inputenc}
+\setlength{\oddsidemargin}{5mm}         % Remove 'twosided' indentation
+\setlength{\evensidemargin}{5mm}
+
+\usepackage[english]{babel}
+\usepackage[protrusion=true,expansion=true]{microtype}  
+\usepackage{amsmath,amsfonts,amsthm,amssymb}
+\usepackage{graphicx}
+
+% --------------------------------------------------------------------
+% Definitions (do not change this)
+% --------------------------------------------------------------------
+\newcommand{\HRule}[1]{\rule{\linewidth}{#1}}   % Horizontal rule
+
+\makeatletter                           % Title
+\def\printtitle{%                       
+	{\centering \@title\par}}
+\makeatother                                    
+
+\makeatletter                           % Author
+\def\printauthor{%                  
+	{\centering \large \@author}}               
+\makeatother                            
+
+% --------------------------------------------------------------------
+% Metadata (Change this)
+% --------------------------------------------------------------------
+\title{ \normalsize \textsc{Relazione Algoritmi e Strutture Dati}    % Subtitle
+	\\[2.0cm]                               % 2cm spacing
+	\HRule{0.5pt} \\                        % Upper rule
+	\LARGE \textbf{\uppercase{Implementazione dizionario in linguaggio 
+			C con Red-Black Tree}}    % Title
+	\HRule{2pt} \\ [0.5cm]      % Lower rule + 0.5cm spacing
+	\normalsize 31 Maggio 2017          % Todays date
+}
+
+\author{
+	Nicolas Farabegoli\\
+	Paolo Baldini\\
+	Università di Bologna\\  
+	\texttt{nicolas.farabegoli@studio.unibo.it} \\
+	\texttt{paolo.baldini@studio.unibo.it}\\
+}
+
+\begin{document}
+	% ------------------------------------------------------------------------------
+	% Maketitle
+	% ------------------------------------------------------------------------------
+	\thispagestyle{empty}       % Remove page numbering on this page
+	
+	\printtitle                 % Print the title data as defined above
+	\vfill
+	\printauthor                % Print the author data as defined above
+	\newpage
+	
+	% ------------------------------------------------------------------------------
+	% Begin document
+	% ------------------------------------------------------------------------------
+	\setcounter{page}{1}        % Set page numbering to begin on this page
+	
+	
+	\section{Analisi}
+		L'obiettivo del progetto è quello di costruire e gestire un vocabolario 
+		contenente le voci, ordinate, e le corrispondenti definizioni. 
+		Il dizionario può essere inizialmente generato a partire da un file di testo.  
+		In questo caso si vogliono memorizzare tutte le parole presenti in un file di 
+		testo in ordine lessico grafico.
+		
+		Si utilizzi per rappresentare il dizionario la struttura dati che si ritiene 
+		più opportuna, dopo una attenta analisi. Si possono utilizzare le strutture 
+		dati astratte affrontate dal corso (alberi, hash table, code, pile, liste, 
+		grafi, ... ).
+		
+		Il file contiene un testo le cui parole non sono memorizzate in ordine lessicografico, e sono separate da spazio. I vocaboli sono inizialmente salvati senza la corrispondente definizione; la definizione, una stringa di dimensione sconosciuta, sarà inserita in un secondo momento, tramite la funzione apposita.
+		
+		Ogni voce del dizionario contiene al massimo 20 caratteri, e minimo 2, e le definizioni inserite ne contengono al massimo 50.
+		
+	\subsection{Vincoli}
+		Nel dizionario non devono essere inserite le parole di un solo carattere o con più di 10 caratteri. Inoltre non devono essere inserite parole che differiscono solo per caratteri minuscoli/miuscoli. Le parole e le definizioni inserite nel dizionario non devono presentare caratteri maiuscoli; nel caso di inserimento di un parola con un carattere, o più, maiuscoli, convertirli per inserirli nel modo corretto. 
+		
+		Si assume che nel file di testo e nel dizionario non ono presenti nomi proprio (di persona) e le voci nel dizionario possono ammettere caratteri accentati (è, à, etc...), ma non ammettono cifre e caratteri di puneggiatura.
+		
+	\subsection{Funzionalità richieste}
+		Sono presenti metodi di gestione del dizionario come il conteggio delle voci del dizionario, l'inserimento o la cancellazione di un nuovo vocabolo, ...
+		
+		Esistono due diverse funzioni di ricerca:
+		\begin{itemize}
+			\item la prima, di base, dato un termine restituisce, se presente, la sua definizione
+			\item la seconda è una funzione di searchAdvance che verifica la presenza della parola da cercare e restituisce la tre parole più simile a quella che si vuole cercare. Per similarità si intende il minor numero di modifiche (sostituzioni, inserimenti) per trasformare una parola nell'altra.
+		\end{itemize}			
+		 Le specifiche della ricerca avanzata, e l'algoritmo da utilizzare, sono a scelta dello studente. Inoltre si vuole avere la possibilità di caricare e salvare il dizionario, a partire dalla struttura dati ottenuta, con il seguente formato, in un file testuale (\textbf{.txt}):
+		 
+\end{document}
