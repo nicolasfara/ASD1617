@@ -6,10 +6,11 @@
 
 \usepackage[a4paper,pdftex]{geometry}   % A4paper margins
 \usepackage[utf8]{inputenc}
+
 \setlength{\oddsidemargin}{5mm}         % Remove 'twosided' indentation
 \setlength{\evensidemargin}{5mm}
 
-\usepackage[english]{babel}
+\usepackage[italian]{babel}
 \usepackage[protrusion=true,expansion=true]{microtype}  
 \usepackage{amsmath,amsfonts,amsthm,amssymb}
 \usepackage{graphicx}
@@ -32,7 +33,7 @@
 % --------------------------------------------------------------------
 % Metadata (Change this)
 % --------------------------------------------------------------------
-\title{ \normalsize \textsc{Relazione Algoritmi e Strutture Dati}    % Subtitle
+\title{ \normalsize \textsc{Relazione progetto Algoritmi e Strutture Dati}    % Subtitle
 	\\[2.0cm]                               % 2cm spacing
 	\HRule{0.5pt} \\                        % Upper rule
 	\LARGE \textbf{\uppercase{Implementazione dizionario in linguaggio 
@@ -49,6 +50,8 @@
 	\texttt{paolo.baldini@studio.unibo.it}\\
 }
 
+
+
 \begin{document}
 	% ------------------------------------------------------------------------------
 	% Maketitle
@@ -59,12 +62,12 @@
 	\vfill
 	\printauthor                % Print the author data as defined above
 	\newpage
-	
+	\tableofcontents
+	\newpage
 	% ------------------------------------------------------------------------------
 	% Begin document
 	% ------------------------------------------------------------------------------
 	\setcounter{page}{1}        % Set page numbering to begin on this page
-	
 	
 	\section{Analisi}
 		L'obiettivo del progetto è quello di costruire e gestire un vocabolario 
@@ -82,19 +85,60 @@
 		
 		Ogni voce del dizionario contiene al massimo 20 caratteri, e minimo 2, e le definizioni inserite ne contengono al massimo 50.
 		
-	\subsection{Vincoli}
-		Nel dizionario non devono essere inserite le parole di un solo carattere o con più di 10 caratteri. Inoltre non devono essere inserite parole che differiscono solo per caratteri minuscoli/miuscoli. Le parole e le definizioni inserite nel dizionario non devono presentare caratteri maiuscoli; nel caso di inserimento di un parola con un carattere, o più, maiuscoli, convertirli per inserirli nel modo corretto. 
-		
-		Si assume che nel file di testo e nel dizionario non ono presenti nomi proprio (di persona) e le voci nel dizionario possono ammettere caratteri accentati (è, à, etc...), ma non ammettono cifre e caratteri di puneggiatura.
-		
-	\subsection{Funzionalità richieste}
-		Sono presenti metodi di gestione del dizionario come il conteggio delle voci del dizionario, l'inserimento o la cancellazione di un nuovo vocabolo, ...
-		
-		Esistono due diverse funzioni di ricerca:
-		\begin{itemize}
-			\item la prima, di base, dato un termine restituisce, se presente, la sua definizione
-			\item la seconda è una funzione di searchAdvance che verifica la presenza della parola da cercare e restituisce la tre parole più simile a quella che si vuole cercare. Per similarità si intende il minor numero di modifiche (sostituzioni, inserimenti) per trasformare una parola nell'altra.
-		\end{itemize}			
-		 Le specifiche della ricerca avanzata, e l'algoritmo da utilizzare, sono a scelta dello studente. Inoltre si vuole avere la possibilità di caricare e salvare il dizionario, a partire dalla struttura dati ottenuta, con il seguente formato, in un file testuale (\textbf{.txt}):
+			\subsection{Vincoli}
+				Nel dizionario non devono essere inserite le parole di un solo carattere o con più di 10 caratteri. Inoltre non devono essere inserite parole che differiscono solo per caratteri minuscoli/minuscoli. Le parole e le definizioni inserite nel dizionario non devono presentare caratteri maiuscoli; nel caso di inserimento di una parola con un carattere, o più, maiuscoli, convertirli per inserirli nel modo corretto. 
+				
+				Si assume che nel file di testo e nel dizionario non sono presenti nomi proprio (di persona) e le voci nel dizionario possono ammettere caratteri accentati (è, à, etc...), ma non ammettono cifre e caratteri di punteggiatura.
+			
+			\subsection{Funzionalità richieste}
+				Sono presenti metodi di gestione del dizionario come il conteggio delle voci del dizionario, l'inserimento o la cancellazione di un nuovo vocabolo, ...
+				
+				Esistono due diverse funzioni di ricerca:
+				\begin{itemize}
+					\item la prima, di base, dato un termine restituisce, se presente, la sua definizione
+					\item la seconda è una funzione di searchAdvance che verifica la presenza della parola da cercare e restituisce la tre parole più simile a quella che si vuole cercare. Per similarità si intende il minor numero di modifiche (sostituzioni, inserimenti) per trasformare una parola nell'altra.
+				\end{itemize} \newpage			
+				 Le specifiche della ricerca avanzata, e l'algoritmo da utilizzare, sono a scelta dello studente. Inoltre si vuole avere la possibilità di caricare e salvare il dizionario, a partire dalla struttura dati ottenuta, con il seguente formato, in un file testuale (\textbf{.txt}):
+				 \begin{trivlist}
+				 	\item \texttt{"che": [(null)]}
+				 	\item \texttt{"classe: [(null)]}
+				 	\item \texttt{"come": [nc]}
+				 	\item \texttt{"determinato": [ulz u]}
+				 	\item \texttt{"di": [(null)]}
+				 \end{trivlist}
+			 	 Oltre al salvataggio classico è richiesto di sviluppare il salvataggio del file compresso, quindi con un ridotto quantitativo di spazio in memoria, utilizzando la tecnica di compressione di Huffman. Il vocabolario è compresso a partire dallo stesso formato del normale salvataggio ("che": [(null)] ...). 
+			 	 
+			 	 Oltre al salvataggio del file compresso, si vuole avere la possibilità di caricare il dizionario compresso da un file di test (decompressione), in modo tale da poterlo visualizzare e/o rielaborare successivamente. Il testo ottenuto dalla decompressione è dello stresso formato del dizionario salvato in memoria. La funzione deve produrre in uscita la struttura dati vocabolario scelta.
+			 	 \newpage
+		\section{Aspetti del progetto}
+			\subsection{Componenti del gruppo}
+				Il gruppo si compone di due persone: Paolo Baldini (\texttt{xxxxxxx}), Nicolas Farabegoli (\texttt{788928}).
+			\subsection{Suddivisione del lavoro}
+				Sono state assegnate 13 funzioni per lavorare sulla struttura dati; l'implementazione delle suddette funzioni è stato ripartita nel seguente modo:
+				\begin{itemize}
+					\item \texttt{createFormFile()} - Nicolas Farabegoli
+					\item \texttt{printDictionary()} - Paolo Baldini
+					\item \texttt{countWord()} - Paolo Baldini
+					\item \texttt{insertWord()} - Nicolas Farabegoli
+					\item \texttt{cancWord()} - Nicolas Farabegoli
+					\item \texttt{getWordAt()} - Paolo Baldini
+					\item \texttt{insertDef()} - Nicolas Farabegoli
+					\item \texttt{searchDef()} - Nicolas Farabegoli
+					\item \texttt{saveDictionary()} - Nicolas Farabegoli
+					\item \texttt{importDictionary()} - Nicolas Farabegoli
+					\item \texttt{searchAdvance()} - Paolo Baldini
+					\item \texttt{compressHuffman()} - Paolo Baldini
+					\item \texttt{decompressHuffman()} - Paolo Baldini			
+				\end{itemize}
+			 
+			 \subsection{Tools di sviluppo}
+			 	I tools di sviluppo che sono stati utilizzati sono: Visual Studio Enterprise 2015 (Editor + compilatore) per effettuare il test in ambiente Windows, mentre VIM (Editor) e GCC (compilatore) per il test in ambiente Linux.
+			 	
+			 	I test del software in ambiente Windows sono stati effettuati su Windows 10 Pro, invece i test in ambiente linux sono stati effettuati utilizzando Arch Linux, Kernel 4.11.3-1 e GCC 7.1.1.
+			 \subsection{Deadline}
+			 	Il progetto viene terminato per il primo appello di Giugno, si stima quindi come data di consegna del progetto (in accordo con le scadenze imposte dal docente) il \today.
+			 
+			 
+			 
 		 
 \end{document}
