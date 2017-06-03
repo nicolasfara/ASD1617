@@ -52,6 +52,19 @@ unsigned short alphabeticalOrder(char* n1, char* n2) {
 	return 2;
 }
 
+NODO* searchWord(NODO** root, char* word) {
+
+	if (*root == NULL || !strcmp(*(*root)->word, word))
+		return *root;
+
+	switch (alphabeticalOrder(*(*root)->word, word)) {
+	case 0:
+
+		break;
+	}
+
+}
+
 void leftRotate(NODO** root, NODO* x)
 {
 	NODO* T = *root;
