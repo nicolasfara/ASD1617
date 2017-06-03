@@ -15,6 +15,7 @@ void leftRotate(NODO **, NODO *);
 void rightRotate(NODO **, NODO *);
 void insertFixUp(NODO **, NODO **);
 void insertRBT(NODO **, NODO *);
+NODO* searchWord(NODO *, char *);
 
 HNode * build_huffman_tree();
 HNode * allocates_node(int);
@@ -51,8 +52,12 @@ int createSentinel() {
  *RETURN 0: n2 is grater than n1
  *RETURN 1: n1 is grater than n2
  *RETURN 2: n1 is n2
+ *RETURN 3: n1-> NULL or n2-> NULL
 */
 unsigned short alphabeticalOrder(char* n1, char* n2) {
+	
+	if (n1 == NULL || n2 == NULL)
+		return 3;
 	//Check character 
 	for (int i = 0; i < MAX_WORD; i++) {
 		if (n1[i] < n2[i])
@@ -64,16 +69,22 @@ unsigned short alphabeticalOrder(char* n1, char* n2) {
 	return 2;
 }
 
-NODO* searchWord(NODO** root, char* word) {
+NODO* searchWord(NODO* root, char* word) {
 
-	if (*root == NULL || !strcmp(*(*root)->word, word))
-		return *root;
+	if ( root == NULL || alphabeticalOrder(root->word, word) == 2)
+		return root;
 
-	switch (alphabeticalOrder(*(*root)->word, word)) {
+	switch (alphabeticalOrder(root->word, word)) {
 	case 0:
-
+		return searchWord(root->right, word);
+		break;
+	case 1:
+		return searchWord(root->left, word);
 		break;
 	}
+
+	//Here there is an error
+	return NULL;
 
 }
 
@@ -316,6 +327,7 @@ int insertWord(NODO ** dictionary, char * word) {
 	return 0;
 }
 
+
 int cancWord(NODO ** dictionary, char * word)
 {
 
@@ -328,12 +340,24 @@ char *getWordAt(NODO *n, int index) {
 
 int insertDef(NODO * dictionary, char * word, char * def)
 {
-	return 0;
+	NODO* sWord = searchWord(dictionary, word);
+	if (sWord == NULL)
+		return 1; //Word not found
+
+	sWord->def = (NODO*)malloc(sizeof(char) * MAX_DEF);
+	if (sWord == NULL)
+		return 1;
+	strncpy(sWord->def, def, MAX_DEF); //Copy the definition with safe string copy
+	return 0; //All ok
 }
 
 char *searchDef(NODO * dictionary, char * word)
 {
-	return NULL;
+	NODO* sWord = searchWord(dictionary, word);
+	if (sWord == NULL)
+		return NULL;
+
+	return sWord->def;
 }
 
 int saveDictionary(NODO * dictionary, char * fileOutput) {
