@@ -1,6 +1,12 @@
 #include "lib1617.h"
 
-NODO* sentinel = NULL; //Sentinella per le foglie e padre della radice
+NODO *sentinel = NULL; //Sentinella per le foglie e padre della radice
+
+								//   A	 B	 C	 D	  E	  F	  G	  H	  I	  J  K  L   M   N   O   
+int letter_frequencies[ELEMENTS] = { 81, 15, 28, 43, 128, 23, 20, 61, 71, 2, 1, 40, 24, 69, 76, 
+								//  P   Q  R   S   T   U   V   W   X  Y	  Z	 SPC NULL NL  '  EOF
+									20, 1, 61, 64, 91, 28, 10, 24, 1, 20, 1, 130, 80, 80, 5, 80};
+
 
 //PROTOTIPI FUNZIONI AUSILIARIE
 int createSentinel();
@@ -14,9 +20,15 @@ HNode * build_huffman_tree();
 HNode * allocates_node(int);
 HNode * extract_smaller_one(HNode **);
 void fill_table(unsigned int *, HNode *, unsigned int);
-void invert_codes(int *, int *);
+int compress_node(NODO *, FILE *, unsigned int *);
+void compress_string(char *, FILE *, unsigned int *);
+char *find_index_word(NODO *, int, int *);
+int decompress_file(FILE *, NODO **, HNode *);
+int search_in_node(NODO *, MSWNode *, char *);
+int levenshtein(const char *, int, const char *, int);
 
-//FUNZIONI
+//FUNZIONI - IN WORKING
+
 int createSentinel() {
 	//Create node
 	sentinel = (NODO*)malloc(sizeof(NODO));
@@ -198,119 +210,9 @@ void insertRBT(NODO** root, NODO* node) {
 	insertFixUp(root, &node);
 }
 
-//CREA L'ALBERO DI HUFFMAN
-HNode * build_huffman_tree() {
-	HNode *temp, *nodes_head;
-	int i;
+//FUNZIONI "BASE"
 
-	temp = nodes_head = allocates_node(0);				//ALLOCO IL PRIMO NODO DELLA LISTA
-	if (temp == NULL)									//CONTROLLO L'ALLOCAZIONE
-		return NULL;
-
-	//temp->frequencies = letter_frequencies[0];			//FREQUENZA DELLA LETTERA (CONTENUTA NELL'ARRAY)
-
-	for (i = 1; i < ELEMENTS; i++){						//PER OGNI LETTERA DOPO LA PRIMA, ALLOCO UN NODO (CREO UNA LISTA)
-		temp->next = allocates_node(i);					//ALLOCO UN NUOVO NODO E LO FACCIO PUNTARE DAL NEXT DEL PRECEDENTE
-		temp = temp->next;								//SPOSTO LA VAR TEMP AL NODO APPENA CREATO (O A NULL IN CASO D'ERRORE)
-		if (temp == NULL)								//CONTROLLO L'ALLOCAZIONE
-			return NULL;
-		//temp->frequencies = letter_frequencies[i];		//ASSOCIO LA FREQUENZA DELLA LETTERA CONTENUTA NELL'ARRAY ALLA VARIABILE NEL NODO
-	}
-
-	while (nodes_head->next != NULL){					//QUANDO HO ALTRI NODI OLTRE LA "RADICE" (SE NON CI SON STATI ERRORI PRECEDENTI CI SARA' SEMPRE ALMENO UN NODO; IN CASO CONTRARIO AVREBBE RESTITUITO NULL)		
-		temp = allocates_node(127);						//ALLOCO UN NODO CHE NON CORRISPONDE A NESSUNA LETTERA
-		if (temp == NULL)								//CONTROLLO L'ALLOCAZIONE
-			return NULL;
-		temp->left = extract_smaller_one(&nodes_head);	//ESTRAGGO IL NODO CON LETTERA DI FREQUENZA MINORE DALLA LISTA E LO FACCIO PUNTARE DAL FIGLIO SINISTRO DEL NUOVO NODO
-		temp->right = extract_smaller_one(&nodes_head);	//ESTRAGGO IL NODO CON LETTERA DI FREQUENZA MINORE DALLA LISTA E LO FACCIO PUNTARE DAL FIGLIO DESTRO DEL NUOVO NODO
-		temp->frequencies = temp->left->frequencies + temp->right->frequencies;	//LA FREQUENZA EQUIVALE ALLA SOMMA DELLE DUE
-		temp->next = nodes_head;						//INSERISCO IL NODO NELLA LISTA
-		nodes_head = temp;
-	}
-
-	return nodes_head;									//RITORNO LA TESTA DELLA LISTA CHE ORA CORRISPONDERA' ALLA RADICE DELL'ALBERO DI HUFFMAN
-}
-
-//ALLOCA I NODI DELL'ALBERO
-HNode * allocates_node(int i) {
-	HNode *node = (HNode *)malloc(sizeof(HNode));		//ALLOCO IL NODO
-	if (node == NULL)									//CONTROLLO L'ALLOCAZIONE
-		return NULL;
-
-	node->letter = i;									//INDICE DELL'ARRAY CORRISPONDENTE ALLA LETTERA
-	node->left = node->right = node->next = NULL;
-
-	return node;										//PUNTATORE AL NODO
-}
-
-//ESTRAE IL NODO CON LETTERA DI FREQUENZA MINORE
-HNode * extract_smaller_one(HNode **nodes_head) {
-	HNode *minimum = *nodes_head;
-	HNode *scrolling = *nodes_head, *previous = NULL;
-
-	if (*nodes_head == NULL)							//SE LA LISTA NON CONTIENE ELEMENTI
-		return NULL;
-
-	if ((*nodes_head)->next == NULL){					//SE CONTIENE SOLO UN ELEMENTO
-		*nodes_head = NULL;								//SVUOTO LA LISTA
-		return minimum;									//RITORNO LA RADICE DELL'ALBERO
-	}
-
-	while (scrolling->next != NULL){					//SCORRO LA LISTA
-		if (scrolling->next->frequencies < minimum->frequencies){	//SE TROVO UN ELEMENTO DI FREQUENZA MINORE
-			previous = scrolling;						//TENGO IN MEMORIA IL NODO PRECEDENTE AL MINIMO
-			minimum = scrolling->next;					//AGGIORNO IL MINIMO
-		}
-		scrolling = scrolling->next;					//VADO ALL'ELEMENTO SUCCESSIVO DELLA LISTA
-	}
-	if (previous == NULL){								//SE L'ELEMENTO ERA IL PRIMO DELLA LISTA
-		*nodes_head = minimum->next;					//SPOSTO LA TESTA ALL'ELEMENTO SUCCESSIVO
-		minimum->next = NULL;							//SCOLLEGO IL PUNTATORE AL SUCCESSIVO DEL MINIMO
-	}
-	else {												//SE IL MINIMO NON ERA IL PRIMO DELLA LISTA
-		previous->next = minimum->next;					//IL PUNTATORE NEXT DEL NODO PRECEDENTE PUNTA AL SUCCESSIVO DI MINIMO
-		minimum->next = NULL;							//SCOLLEGO IL PUNTATORE NEXT DEL MINIMO
-	}
-
-	return minimum;										//RESTITUISCO L'INDIRIZZO DEL NODO CON FREQUENZA MINORE
-}
-
-//COSTRUISCE LA TABELLA DELLE CONVERSIONI (1 = 0, 2 = 1)
-void fill_table(unsigned int *code_table, HNode *tree_node, unsigned int code) {
-	if (tree_node->letter != 127)									//SE SIAMO ALLA FOGLIA (C'E' UN VALORE != DA 127)
-		code_table[(int)tree_node->letter] = code;					//"CODE" HA ASSUNTO IL VALORE "BINARIO" DEL PERCORSO DA RADICE->FOGLIA
-	else {															//SE NON SONO ANCORA GIUNTO ALLA FOGLIA
-		if (code >= pow(10, 9)) {									//QUANDO CODE SUPERA IL MILIARDO (NON E' PIU' POSSIBILE CONTENERLO IN UN INT)
-			fill_table(code_table, tree_node->left, code + 3);		//SE VADO A SX IL RAMO HA VALORE 0(1) - IN QUESTO CASO E' STATO MESSO +3 PER EVITARE CHE L'INT RAGGIUNGESSE I 10 MILIARDI
-			fill_table(code_table, tree_node->right, code + 5);		//SE VADO A DX IL RAMO HA VALORE 1(2) - IN QUESTO CASO E' STATO MESSO +5 PER EVITARE CHE L'INT RAGGIUNGESSE I 10 MILIARDI
-		}
-		else {
-			fill_table(code_table, tree_node->left, code * 10 + 1);	//SE VADO A SX IL RAMO HA VALORE 0(1)
-			fill_table(code_table, tree_node->right, code * 10 + 2);//SE VADO A DX IL RAMO HA VALORE 1(2)
-		}
-	}
-
-	return;
-}
-
-//INVERTE IL VALORE "BINARIO" DA SX->DX A DX->SX NELLA TABELLA
-void invert_codes(int *code_table, int *code_table2) {
-	int i, code, rev;
-
-	for (i = 0; i < ELEMENTS; i++){			//PER OGNI LETTERA
-		code = code_table[i];				//COPIO LA CODIFICA PRE-ESISTENTE
-		rev = 0;							//AZZERO IL BYTE "REVERSE"
-		while (code > 0){					//FIN QUANDO NON HO FINITO DI "RIBALTARE" I "BIT" (ES 101->10->1->0)
-			rev = rev * 10 + code % 10;		//MOLTIPLICO PER 10 I NUMERI GIA' RIBALTATI PER "TRASLARLI" E GLI AGGIUNGO IL RESTO DELLA DIVISIONE PER 10 (IL "BIT" SUCCESSIVO)
-			code /= 10;						//"ELIMINO" IL "BIT" CHE HO APPENA RIBALTATO
-		}
-		code_table2[i] = rev;				//SCRIVO LA CODIFICA RIBALTATA NELLA TABELLA
-	}
-
-	return;
-}
-
-NODO * createFromFile(char * nameFile)
+NODO *createFromFile(char * nameFile)
 {
 	unsigned short i = 0;
 	char tmp;
@@ -367,8 +269,7 @@ NODO * createFromFile(char * nameFile)
 	return root;
 }
 
-void printDictionary(NODO * dictionary)
-{
+void printDictionary(NODO * dictionary) {
 	if (dictionary != NULL && dictionary != sentinel) {
 		printDictionary(dictionary->left);
 		printf("\"%s\": ", dictionary->word);
@@ -378,8 +279,7 @@ void printDictionary(NODO * dictionary)
 }
 
 //Function for print on file the dictionary
-void printDictionaryFile(NODO * dictionary, FILE *f)
-{
+void printDictionaryFile(NODO * dictionary, FILE *f) {
 	if (dictionary != NULL && dictionary != sentinel) {
 		printDictionaryFile(dictionary->left, f);
 		fprintf(f, "\"%s\": ", dictionary->word);
@@ -388,13 +288,13 @@ void printDictionaryFile(NODO * dictionary, FILE *f)
 	}
 }
 
-int countWord(NODO * dictionary)
-{
-	return 0;
+int countWord(NODO *n) {
+	if (n == NULL || n->word == NULL)						//CASO BASE (SENTINELLA)
+		return 0;
+	return countWord(n->left) + countWord(n->right) + 1;	//NUMERO PAROLE DEL RAMO SINISTRO + DESTRO + IL NODO
 }
 
-int insertWord(NODO ** dictionary, char * word)
-{
+int insertWord(NODO ** dictionary, char * word) {
 	if (strlen(word) < 2)
 		return 1;
 
@@ -421,9 +321,9 @@ int cancWord(NODO ** dictionary, char * word)
 
 }
 
-char * getWordAt(NODO * dictionary, int index)
-{
-	return NULL;
+char *getWordAt(NODO *n, int index) {
+	int counter = 0;
+	return find_index_word(n, index, &counter);
 }
 
 int insertDef(NODO * dictionary, char * word, char * def)
@@ -431,13 +331,12 @@ int insertDef(NODO * dictionary, char * word, char * def)
 	return 0;
 }
 
-char * searchDef(NODO * dictionary, char * word)
+char *searchDef(NODO * dictionary, char * word)
 {
 	return NULL;
 }
 
-int saveDictionary(NODO * dictionary, char * fileOutput)
-{
+int saveDictionary(NODO * dictionary, char * fileOutput) {
 	//check if the dictionary is empty
 	if (dictionary == NULL)
 		return -1;
@@ -455,22 +354,386 @@ int saveDictionary(NODO * dictionary, char * fileOutput)
 	return 0;
 }
 
-NODO * importDictionary(char * fileInput)
+NODO *importDictionary(char * fileInput)
 {
 	return NULL;
 }
 
-int searchAdvance(NODO * dictionary, char * word, char ** first, char ** second, char ** third)
-{
+int searchAdvance(NODO * dictionary, char * word, char ** first, char ** second, char ** third) {
+	if (word == NULL || dictionary == NULL)
+		return -1;
+
+	MSWNode head[3];
+	head[0].w_pointer = first;
+	head[1].w_pointer = second;
+	head[2].w_pointer = third;
+	head[0].distance = head[1].distance = head[2].distance = 0x7fff;
+
+	int res = search_in_node(dictionary, head, word);
+	if (head[0].distance == 0x7fff ||
+		head[1].distance == 0x7fff ||
+		head[2].distance == 0x7fff)
+		return -1;
+	return res;
+}
+
+int compressHuffman(NODO * dictionary, char * file_name) {
+	char eof = 27;
+	unsigned int code_table[ELEMENTS];
+	FILE *output_file = fopen(file_name, "w");
+	HNode *root = build_huffman_tree();
+	if (root == NULL)
+		return -1;
+	fill_table(code_table, root, 0);
+
+	compress_node(dictionary, output_file, code_table);
+	compress_string(&eof, output_file, code_table);
+	fclose(output_file);
+
 	return 0;
 }
 
-int compressHuffman(NODO * dictionary, char * fileOutput)
-{
+int decompressHuffman(char * file_name, NODO ** dictionary) { 
+	int x = 0;
+	FILE *input_file = fopen(file_name, "r");
+	HNode *root = build_huffman_tree();
+	if (sentinel == NULL)
+		x = createSentinel();
+	if (root == NULL || input_file == NULL || x == -1)
+		return -1;
+	x = decompress_file(input_file, dictionary, root);
+	fclose(input_file);
+
+	return x;
+}
+
+//FUNZIONI AUSILIARIE - COMPLETE
+
+HNode *build_huffman_tree() {
+	HNode *nodes_head = allocates_node(0);				//ALLOCO IL PRIMO NODO DELLA LISTA
+	HNode *temp = nodes_head;
+
+	if (temp == NULL)									//CONTROLLO L'ALLOCAZIONE
+		return NULL;
+
+	temp->frequencies = letter_frequencies[0];			//FREQUENZA DELLA LETTERA (CONTENUTA NELL'ARRAY)
+
+	for (int i = 1; i < ELEMENTS; i++) {				//PER OGNI LETTERA DOPO LA PRIMA, ALLOCO UN NODO (CREO UNA LISTA)
+		temp->next = allocates_node(i);					//ALLOCO UN NUOVO NODO E LO FACCIO PUNTARE DAL NEXT DEL PRECEDENTE
+		temp = temp->next;								//SPOSTO LA VAR TEMP AL NODO APPENA CREATO (O A NULL IN CASO D'ERRORE)
+		if (temp == NULL)								//CONTROLLO L'ALLOCAZIONE
+			return NULL;
+		temp->frequencies = letter_frequencies[i];		//ASSOCIO LA FREQUENZA DELLA LETTERA CONTENUTA NELL'ARRAY ALLA VARIABILE NEL NODO
+	}
+
+	while (nodes_head->next != NULL) {					//QUANDO HO ALTRI NODI OLTRE LA "RADICE" (SE NON CI SON STATI ERRORI PRECEDENTI CI SARA' SEMPRE ALMENO UN NODO; IN CASO CONTRARIO AVREBBE RESTITUITO NULL)		
+		temp = allocates_node(127);						//ALLOCO UN NODO CHE NON CORRISPONDE A NESSUNA LETTERA
+		if (temp == NULL)								//CONTROLLO L'ALLOCAZIONE
+			return NULL;
+		temp->left = extract_smaller_one(&nodes_head);	//ESTRAGGO IL NODO CON LETTERA DI FREQUENZA MINORE DALLA LISTA E LO FACCIO PUNTARE DAL FIGLIO SINISTRO DEL NUOVO NODO
+		temp->right = extract_smaller_one(&nodes_head);	//ESTRAGGO IL NODO CON LETTERA DI FREQUENZA MINORE DALLA LISTA E LO FACCIO PUNTARE DAL FIGLIO DESTRO DEL NUOVO NODO
+		temp->frequencies = temp->left->frequencies + temp->right->frequencies;	//LA FREQUENZA EQUIVALE ALLA SOMMA DELLE DUE
+		temp->next = nodes_head;						//INSERISCO IL NODO NELLA LISTA
+		nodes_head = temp;
+	}
+	return nodes_head;									//RITORNO LA TESTA DELLA LISTA CHE ORA CORRISPONDERA' ALLA RADICE DELL'ALBERO DI HUFFMAN
+}
+
+HNode *allocates_node(int i) {
+	HNode *node = (HNode *)malloc(sizeof(HNode));		//ALLOCO IL NODO
+	if (node == NULL)									//CONTROLLO L'ALLOCAZIONE
+		return NULL;
+
+	node->letter = i;									//INDICE DELL'ARRAY CORRISPONDENTE ALLA LETTERA
+	node->left = node->right = node->next = NULL;
+
+	return node;										//PUNTATORE AL NODO
+}
+
+HNode *extract_smaller_one(HNode **nodes_head) {
+	HNode *minimum = *nodes_head;
+	HNode *scrolling = *nodes_head, *previous = NULL;
+
+	if (*nodes_head == NULL)							//SE LA LISTA NON CONTIENE ELEMENTI
+		return NULL;
+
+	if ((*nodes_head)->next == NULL) {					//SE CONTIENE SOLO UN ELEMENTO
+		*nodes_head = NULL;								//SVUOTO LA LISTA
+		return minimum;									//RITORNO LA RADICE DELL'ALBERO
+	}
+
+	while (scrolling->next != NULL) {					//SCORRO LA LISTA
+		if (scrolling->next->frequencies < minimum->frequencies) {	//SE TROVO UN ELEMENTO DI FREQUENZA MINORE
+			previous = scrolling;						//TENGO IN MEMORIA IL NODO PRECEDENTE AL MINIMO
+			minimum = scrolling->next;					//AGGIORNO IL MINIMO
+		}
+		scrolling = scrolling->next;					//VADO ALL'ELEMENTO SUCCESSIVO DELLA LISTA
+	}
+	if (previous == NULL) {								//SE L'ELEMENTO ERA IL PRIMO DELLA LISTA
+		*nodes_head = minimum->next;					//SPOSTO LA TESTA ALL'ELEMENTO SUCCESSIVO
+		minimum->next = NULL;							//SCOLLEGO IL PUNTATORE AL SUCCESSIVO DEL MINIMO
+	}
+	else {												//SE IL MINIMO NON ERA IL PRIMO DELLA LISTA
+		previous->next = minimum->next;					//IL PUNTATORE NEXT DEL NODO PRECEDENTE PUNTA AL SUCCESSIVO DI MINIMO
+		minimum->next = NULL;							//SCOLLEGO IL PUNTATORE NEXT DEL MINIMO
+	}
+	return minimum;										//RESTITUISCO L'INDIRIZZO DEL NODO CON FREQUENZA MINORE
+}
+
+void fill_table(unsigned int *code_table, HNode *tree_node, unsigned int code) {
+	if (tree_node->letter != 127)									//SE SIAMO ALLA FOGLIA (C'E' UN VALORE != DA 127)
+		code_table[(int)tree_node->letter] = code;					//"CODE" HA ASSUNTO IL VALORE "BINARIO" DEL PERCORSO DA RADICE->FOGLIA
+	else {															//SE NON SONO ANCORA GIUNTO ALLA FOGLIA
+		if (code >= pow(10, 9)) {									//QUANDO CODE SUPERA IL MILIARDO (NON E' PIU' POSSIBILE CONTENERLO IN UN INT)
+			fill_table(code_table, tree_node->left, code + 3);		//SE VADO A SX IL RAMO HA VALORE 0(1) - IN QUESTO CASO E' STATO MESSO +3 PER EVITARE CHE L'INT RAGGIUNGESSE I 10 MILIARDI
+			fill_table(code_table, tree_node->right, code + 5);		//SE VADO A DX IL RAMO HA VALORE 1(2) - IN QUESTO CASO E' STATO MESSO +5 PER EVITARE CHE L'INT RAGGIUNGESSE I 10 MILIARDI
+		}
+		else {
+			fill_table(code_table, tree_node->left, code * 10 + 1);	//SE VADO A SX IL RAMO HA VALORE 0(1)
+			fill_table(code_table, tree_node->right, code * 10 + 2);//SE VADO A DX IL RAMO HA VALORE 1(2)
+		}
+	}
+
+	return;
+}
+
+int compress_node(NODO * n, FILE * output, int *code_table) {
+	if (n == NULL || n->word == NULL)
+		return -1;
+	compress_node(n->left, output, code_table);
+	compress_string(n->word, output, code_table);
+	compress_string(n->def, output, code_table);
+	compress_node(n->right, output, code_table);
+
 	return 0;
 }
 
-int decompressHuffman(char * fileInput, NODO ** dictionary)
-{
+void compress_string(char *n_string, FILE *output, unsigned int *code_table) {
+	char bit, c, byte = 0;										//1 BYTE
+	unsigned int code, lenght, i = 0, bits_left = 8;
+
+	do{
+		if (n_string == NULL) {
+			lenght = (int)log10((code_table[27]) + 1);			//LUNGHEZZA BINARIA DEL NUMERO CODIFICATO
+			code = code_table[27];								//CODIFICA BIN
+		}
+		else {
+			c = n_string[i];
+
+			if (c >= 97 && c <= 122) {							//LETTERE MINUSCOLE			
+				lenght = (int)log10((code_table[c - 97]) + 1);	//LENGHT = LUNGHEZZA CODIFICA (CODIFICA ASCII DELLE LETTERE - 97 = INDICE LETTERA NELLA TABELLA)
+				code = code_table[c - 97];						//CODIFICA "BINARIA" DELLA LETTERA
+			}
+			if (c == 32) {										//CARATTERE SPAZIO
+				lenght = (int)log10((code_table[26]) + 1);		//LUNGHEZZA BINARIA DEL NUMERO CODIFICATO
+				code = code_table[26];							//CODIFICA BIN
+			}
+			if (c == 0) {										//CARATTERE NULL
+				lenght = (int)log10((code_table[27]) + 1);		//LUNGHEZZA BINARIA DEL NUMERO CODIFICATO
+				code = code_table[27];							//CODIFICA BIN
+			}
+			if (c == 10) {										//CARATTERE "NEW LINE"
+				lenght = (int)log10((code_table[28]) + 1);		//LUNGHEZZA BINARIA DEL NUMERO CODIFICATO
+				code = code_table[28];							//CODIFICA BIN
+			}
+			if (c == 96) {										//CARATTERE "APOSTROFO"
+				lenght = (int)log10((code_table[29]) + 1);		//LUNGHEZZA BINARIA DEL NUMERO CODIFICATO
+				code = code_table[29];							//CODIFICA BIN
+			}
+			if (c == 27) {										//CARATTERE "ESCAPE"
+				lenght = (int)log10((code_table[ELEMENTS - 1]) + 1);		//LUNGHEZZA BINARIA DEL NUMERO CODIFICATO
+				code = code_table[ELEMENTS - 1];				//CODIFICA BIN
+			}
+		}
+		while (lenght + 1 > 0)									//MI SCORRO TUTTI I "BIT" DELLA CODIFICA
+		{
+			bit = (code / pow(10, lenght)) - 1;					//PRENDO "BIT PER BIT" LA CODIFICA DELLA LETTERA (-1 PERCHE' GLI 0 = 1 E 1 = 2 NELLA TABELLA)				
+			switch (bit)
+			{
+			case 3:
+				bit = 0;
+				lenght++;
+				code -= 3;
+				break;
+			case 4:
+				bit = 1;
+				lenght++;
+				code -= 4;
+				break;
+			case 5:
+				bit = 0;
+				lenght++;
+				code -= 4;
+				break;
+			case 6:
+				bit = 1;
+				lenght++;
+				code -= 5;
+				break;
+			default:
+				code -= (bit + 1)* pow(10, lenght);				//ELIMINO IL BIT VALUTATO
+			}
+			byte = byte | bit;									//PRENDO LA CODIFIA BINARIA DEL RESTO E LA METTO IN OR CON LE PRECEDENTI
+			bits_left--;										//BIT NON "UTILIZZATI"
+			lenght--;											//LUNGHEZZA DELLA CODIFICA RIMANENTE DA INSERIRE NEL FILE
+			if (bits_left == 0) {								//SE HO RIEMPITO IL BYTE CON LA CODIFICA DELLE VARIE LETTERE
+				fputc(byte, output);							//SCRIVO LA CODIFICA
+				byte = 0;										//AZZERO X PER POTER "SCRIVERE" IL NUOVO BYTE
+				bits_left = 8;									//RESETTO I BYTE "RIMANENTI" DI "BYTE"
+			}
+			byte = byte << 1;									//AVENDO INSERITO UNA CODIFICA "SHIFTO" I BIT PER NON SOVRASCRIVERLI
+		}
+		i++;
+	} while (n_string != NULL && c != '\0');
+
+	if (bits_left != 8){										//SE CODIFICANDO L'INTERA LINEA NON HO "RIEMPITO" IL BYTE
+		byte = byte << (bits_left - 1);							//SHIFTO I BIT A SINISTA IN MODO DA NON AVERE "ZERI" CHE SI FRAPPONGANO FRA L'ULTIMA E LA PRECEDENTE LETTERA
+		fputc(byte, output);									//SCRIVO IL BYTE NEL FILE
+	}
+
+	return;
+}
+
+char *find_index_word(NODO *n, int index, int *counter_pt) {
+	if (n->word == NULL)										//CASO BASE (SENTINELLA)
+		return NULL;
+
+	char *result = find_index_word(n->left, index, counter_pt);	//CONTROLLO IL FIGLIO SINISTRO
+	if (result != NULL)											//SE HO TROVATO LA PAROLA LA RESTITUISCO
+		return result;
+
+	if (*counter_pt == index)									//SE SONO ALLA I-ESIMA PAROLA (PARTENDO A CONTARE DA 1)
+		return n->word;											//LA RESTITUISCO
+	(*counter_pt)++;
+	return find_index_word(n->right, index, counter_pt);		//ALTRIMENTI RESTITUISCO  QUELLO CHE MI PASSA IL FIGLIO DESTRO
+}
+
+int decompress_file(FILE *input, NODO **dict_root, HNode *tree) {
+	HNode *current = tree;
+	register char c;
+	register int k = 0;
+	char bit;
+	int i, end_of_file = 0;
+
+	NODO *nodo_pointer = (NODO *)malloc(sizeof(NODO));
+	char *string = (char *)malloc(sizeof(char) * 20);
+	if (nodo_pointer == NULL || string == NULL)
+		return -1;
+	nodo_pointer->word = string;
+
+	if ((c = fgetc(input)) == EOF)
+		return -1;
+
+	while (end_of_file != 1) {											//ACQUISISCE CICLICAMENTE I CARATTERI FINCHE' NON ARRIVA ALLA FINE DEL FILE
+		for (i = 0; i<8; i++) {											//PER OGNI BIT
+			bit = c & 0x80;												//PRENDE IL PRIMO BIT (AND CON 10000000)
+			c = c << 1;													//SHIFTO IL BYTE
+			if (bit == 0)												//SE IL BIT "ESTRATTO" E' "ZERO"
+				current = current->left;								//MI SPOSTO SUL RAMO SINISTRO DELL'ALBERO
+			else
+				current = current->right;
+
+			if (current->letter != 127){								//SE SONO GIUNTO AD UNA FOGLIA
+				if (current->letter >= 0 && current->letter <= 25) {	//SE E' UNA LETTERA
+					string[k] = current->letter + 97;
+					k++;
+				}
+				if (current->letter == 26) {							//SE E' LO SPAZIO
+					string[k] = 32;
+					k++;
+				}
+				if (current->letter == 27) {							//SE E' NULL
+					if (k != 0)
+						string[k] = '\0';
+					else {
+						free(string);
+						if (string == nodo_pointer->word)
+							nodo_pointer->word = NULL;
+						else
+							nodo_pointer->def = NULL;
+						string = NULL;
+					}
+					if (string == nodo_pointer->word) {
+						string = (char *)malloc(sizeof(char) * 50);
+						nodo_pointer->def = string;
+					}
+					else {
+						insertRBT(dict_root, nodo_pointer);
+						nodo_pointer = (NODO *)malloc(sizeof(NODO));
+						if (nodo_pointer == NULL)
+							return -1;
+						string = (char *)malloc(sizeof(char) * 20);
+						nodo_pointer->word = string;
+					}
+					if (string == NULL)
+						return -1;
+					k = 0;
+					i = 7;
+				}
+				if (current->letter == 28) {							//SE E' NEW LINE
+					string[k] = 10;
+					k++;
+				}
+				if (current->letter == 29) {							//SE E' L'APOSTROFO
+					string[k] = 96;
+					k++;
+				}														//"STAMPO" NEW LINE NEL FILE
+				if (current->letter == ELEMENTS - 1) {					//SE E' L'EOF CREATO DA ME
+					end_of_file = 1;
+				}
+				current = tree;											//TORNO ALLA RADICE
+			}
+		}
+		c = fgetc(input);
+	}
 	return 0;
+}
+
+int search_in_node(NODO *n, MSWNode *head, char *word) {
+	if (n->word == NULL)
+		return 0;
+
+	int ris = search_in_node(n->left, head, word);
+
+	if (!strcmp(n->word, word))
+		ris = 1;
+	else {
+		int ln = strlen(n->word);
+		int lw = strlen(word);
+		int dist = levenshtein(n->word, ln, word, lw);
+		if (dist < head[2].distance) {
+			head[2].distance = dist;
+			*(head[2].w_pointer) = n->word;
+			if (head[2].distance < head[1].distance) {
+				MSWNode tmp = head[1];
+				head[1] = head[2];
+				head[2] = tmp;
+				if (head[1].distance < head[0].distance) {
+					tmp = head[0];
+					head[0] = head[1];
+					head[1] = tmp;
+				}
+			}
+		}
+	}
+	return ris | search_in_node(n->right, head, word);
+}
+
+int levenshtein(const char *s, int ls, const char *t, int lt) {
+	if (!ls)
+		return lt;
+	if (!lt)
+		return ls;
+
+	if (s[ls] == t[ls])
+		return levenshtein(s, ls - 1, t, lt - 1);
+
+	int a = levenshtein(s, ls - 1, t, lt - 1);
+	int b = levenshtein(s, ls, t, lt - 1);
+	int c = levenshtein(s, ls - 1, t, lt);
+
+	if (a > b) a = b;
+	if (a > c) a = c;
+
+	return a + 1;
 }

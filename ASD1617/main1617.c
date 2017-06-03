@@ -12,12 +12,12 @@ int main(void) {
 	srand((unsigned int)time(NULL));
 	
 	NODO* dictionary = createFromFile("fileTest1617.txt");
-
+	
 	printf("\nSTAMPA DEL DIZIONARIO:\n");
 	printDictionary(dictionary);
 
 	printf("\nNumero di parole salvate nel dizionario : %d\n\n", countWord(dictionary));
-
+	
 	insertWord(&dictionary, "tavolo");
 	insertWord(&dictionary, "b");
 	insertWord(&dictionary, "zoo");
@@ -25,12 +25,14 @@ int main(void) {
 	printf("\nNumero di parole salvate nel dizionario : %d\n\n", countWord(dictionary));
 	printf("\nSTAMPA DEL DIZIONARIO dopo 3 inserimenti:\n");
 	printDictionary(dictionary);
+	printf("\nNumero di parole salvate nel dizionario : %d\n\n", countWord(dictionary));
 
 	cancWord(&dictionary, getWordAt(dictionary, 5));
 	cancWord(&dictionary, getWordAt(dictionary, 1));
 	cancWord(&dictionary, getWordAt(dictionary, 0));
 	printf("\nSTAMPA DEL DIZIONARIO dopo 3 cancellazioni:\n");
 	printDictionary(dictionary);
+	printf("\nNumero di parole salvate nel dizionario : %d\n\n", countWord(dictionary));
 	
 	insertDef(dictionary, getWordAt(dictionary, 2), "una definizione");
 	insertDef(dictionary, getWordAt(dictionary, 4), "altra definizione");
@@ -43,8 +45,17 @@ int main(void) {
 	printf("\nRicerca Parola \"%s\" -> definizione : [%s]\n\n", getWordAt(dictionary, 7), searchDef(dictionary, getWordAt(dictionary, 7)));
 	stringTemp = "eftd";
 	printf("\nRicerca Parola \"%s\" -> definizione : [%s]\n\n", stringTemp, searchDef(dictionary, stringTemp));
-	
 
+	/*compressHuffman(dictionary, "text.txt");
+	dictionary = NULL;
+	printf("\n\n\nHUFFF\n\n\n");
+	decompressHuffman("text.txt", &dictionary);
+	printDictionary(dictionary);
+	printf("\nNumero di parole salvate nel dizionario : %d\n\n", countWord(dictionary));
+	char *first = NULL, *second = NULL, *third= NULL, *word = NULL;
+	printf("%d\n", searchAdvance(dictionary, word, &first, &second, &third));
+	word = "algoritmo";
+	printf("%d %s %s %s\n", searchAdvance(dictionary, word, &first, &second, &third), first, second, third);*/
 
 	system("PAUSE");
 	return (0);

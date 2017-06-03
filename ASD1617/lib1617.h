@@ -14,7 +14,7 @@
 #define MAX_DEF 50
 #define MAX_WORD 20
 #define MIN_WORD 2
-#define ELEMENTS 30
+#define ELEMENTS 31
 
 //NODO RBT
 typedef struct NODO {
@@ -34,6 +34,12 @@ typedef struct NODE{
 	struct NODE *left, *right;
 	struct NODE *next;
 } HNode;
+
+//NODO AUSILIARIO RICERCA PAROLE PIU' SIMILI
+typedef struct MSW {		//most similar word
+	char **w_pointer;
+	short int distance;
+} MSWNode;
 
 
 /*
@@ -70,7 +76,6 @@ Output:
 int countWord(NODO* dictionary);
 
 
-
 /*
 Input:
 	-dictionary: la struttura dati in cui avete memorizzato il dizionario
@@ -91,7 +96,6 @@ Output:
 	-1 in caso di presenza di errori
 */
 int cancWord(NODO** dictionary, char* word);
-
 
 
 /*
@@ -161,7 +165,6 @@ Output:
 	-(-1) in caso di errori
 */
 int searchAdvance(NODO* dictionary, char* word, char** first, char** second, char** third);
-
 
 
 /*
