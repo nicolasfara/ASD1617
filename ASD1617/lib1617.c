@@ -327,10 +327,149 @@ int insertWord(NODO ** dictionary, char * word) {
 	return 0;
 }
 
+void rb_trasplant(NODO** root, NODO* u, NODO* v) {
+
+	if (u->parent == sentinel)
+		*root = v;
+	else if (u == u->parent->left)
+		u->parent->left = v;
+	else {
+		u->parent->right = v;
+		v->parent = u->parent;
+	}
+}
+
+void rb_deleteFixUp(NODO** root, NODO * x) {
+
+	NODO* w = NULL;
+
+	while (x != *root && x->isBlack == true)
+	{
+		if (x == x->parent->left) {
+			w = x->parent->right;
+			if (w->isBlack == false) {
+				w->isBlack = true;
+				x->parent->isBlack = false;
+				leftRotate(root, x->parent);
+				w = x->parent->right;
+			}
+			if ((w->left->isBlack == true) && (w->right->isBlack == true)) {
+				w->isBlack = false;
+				x = x->parent;
+			}
+			else {
+				if (w->right->isBlack == true) {
+					w->left->isBlack = true;
+					w->isBlack = false;
+					rightRotate(root, w);
+					w = x->parent->right;
+				}
+				w->isBlack = x->parent->isBlack;
+				x->parent->isBlack = true;
+				w->right->isBlack = true;
+				leftRotate(root, x->parent);
+				x = *root;
+			}
+		}
+		else {
+			w = x->parent->left;
+			if (w->isBlack == false) {
+				w->isBlack = true;
+				x->parent->isBlack = false;
+				rightRotate(root, x->parent);
+				w = x->parent->left;
+			}
+			if ((w->right->isBlack == true) && (w->left->isBlack == true)) {
+				w->isBlack = false;
+				x = x->parent;
+			}
+			else {
+				if (w->left->isBlack == true) {
+					w->right->isBlack = true;
+					w->isBlack = false;
+					leftRotate(root, w);
+					w = x->parent->left;
+				}
+				w->isBlack = x->parent->isBlack;
+				x->parent->isBlack = true;
+				w->left->isBlack = true;
+				rightRotate(root, x->parent);
+				x = *root;
+			}
+		}
+
+	}
+	x->isBlack = true;
+}
+
+NODO* treeSuccessor(NODO* root, NODO* x) {
+
+	NODO* y = NULL;
+
+	if ((y = x->right) == sentinel) {
+
+		while (y->left != sentinel)
+			y = y->left;
+
+		return y;
+	}
+	else {
+		y = x->parent;
+		while (x == y->right) {
+			x = y;
+			y = y->parent;
+		}
+		if (y == root) return sentinel;
+
+		return y;
+	}
+}
+
+void rb_delete(NODO** root, NODO* z) {
+	
+	NODO* y = NULL;
+	NODO* x = NULL;
+	NODO* _root = *root;
+
+	y = ((z->left == sentinel) || (z->right == sentinel)) ? z : treeSuccessor(*root, z);
+	x = (y->left == sentinel) ? y->right : y->left;
+	if (_root == (x->parent = y->parent))
+		_root->left = x;
+	else {
+		if (y == y->parent->left)
+			y->parent->left = x;
+		else
+			y->parent->right = x;
+	}
+
+	if (y != z) {
+		if (y->isBlack == true) rb_deleteFixUp(root, x);
+
+		y->left = z->left;
+		y->right = z->right;
+		y->parent = z->parent;
+		y->isBlack = z->isBlack;
+		z->left->parent = z->right->parent = y;
+		if (z == z->parent->left)
+			z->parent->left = y;
+		else
+			z->parent->right = y;
+		free(z);
+	}
+	else {
+		if (y->isBlack == true) rb_deleteFixUp(root, x);
+		free(y);
+	}
+}
 
 int cancWord(NODO ** dictionary, char * word)
 {
+	NODO* sWord = searchWord(*dictionary, word);
+	if (sWord == NULL)
+		return 1;
 
+	rb_delete(dictionary, sWord);
+	return 0;
 }
 
 char *getWordAt(NODO *n, int index) {
@@ -353,11 +492,12 @@ int insertDef(NODO * dictionary, char * word, char * def)
 
 char *searchDef(NODO * dictionary, char * word)
 {
+	//search the word
 	NODO* sWord = searchWord(dictionary, word);
-	if (sWord == NULL)
+	if (sWord == NULL) //check if the word exist
 		return NULL;
 
-	return sWord->def;
+	return sWord->def; //return the definition
 }
 
 int saveDictionary(NODO * dictionary, char * fileOutput) {
