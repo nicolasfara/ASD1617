@@ -2,10 +2,10 @@
 
 NODO *sentinel = NULL; //Sentinella per le foglie e padre della radice
 
-								//   A	 B	 C	 D	  E	  F	  G	  H	  I	  J  K  L   M   N   O   
-int letter_frequencies[ELEMENTS] = { 81, 15, 28, 43, 128, 23, 20, 61, 71, 2, 1, 40, 24, 69, 76, 
-								//  P   Q  R   S   T   U   V   W   X  Y	  Z	 SPC NULL NL  '  EOF
-									20, 1, 61, 64, 91, 28, 10, 24, 1, 20, 1, 130, 80, 80, 5, 80};
+						//   A	 B	 C	 D	  E	  F	  G	  H	  I	  J  K  L   M   N   O   
+int letter_frequencies[] = { 81, 15, 28, 43, 128, 23, 20, 61, 71, 2, 1, 40, 24, 69, 76, 
+						//  P   Q  R   S   T   U   V   W   X  Y	  Z	 SPC NULL NL  '  EOF
+							20, 1, 61, 64, 91, 28, 10, 24, 1, 20, 1, 130, 80, 80, 5, 80};
 
 
 //PROTOTIPI FUNZIONI AUSILIARIE
@@ -549,7 +549,6 @@ int compressHuffman(NODO * dictionary, char * file_name) {
 	if (root == NULL)
 		return -1;
 	fill_table(code_table, root, 0);
-
 	compress_node(dictionary, output_file, code_table);
 	compress_string(&eof, output_file, code_table);
 	fclose(output_file);
@@ -648,7 +647,7 @@ void fill_table(unsigned int *code_table, HNode *tree_node, unsigned int code) {
 	if (tree_node->letter != 127)									//SE SIAMO ALLA FOGLIA (C'E' UN VALORE != DA 127)
 		code_table[(int)tree_node->letter] = code;					//"CODE" HA ASSUNTO IL VALORE "BINARIO" DEL PERCORSO DA RADICE->FOGLIA
 	else {															//SE NON SONO ANCORA GIUNTO ALLA FOGLIA
-		if (code >= pow(10, 9)) {									//QUANDO CODE SUPERA IL MILIARDO (NON E' PIU' POSSIBILE CONTENERLO IN UN INT)
+		if ((code % 10) == 1 || (code % 10) == 1) {					//QUANDO CODE SUPERA IL MILIARDO (NON E' PIU' POSSIBILE CONTENERLO IN UN INT)
 			fill_table(code_table, tree_node->left, code + 3);		//SE VADO A SX IL RAMO HA VALORE 0(1) - IN QUESTO CASO E' STATO MESSO +3 PER EVITARE CHE L'INT RAGGIUNGESSE I 10 MILIARDI
 			fill_table(code_table, tree_node->right, code + 5);		//SE VADO A DX IL RAMO HA VALORE 1(2) - IN QUESTO CASO E' STATO MESSO +5 PER EVITARE CHE L'INT RAGGIUNGESSE I 10 MILIARDI
 		}
@@ -716,26 +715,27 @@ void compress_string(char *n_string, FILE *output, unsigned int *code_table) {
 			{
 			case 3:
 				bit = 0;
+				code -= (3 * pow(10, lenght));
 				lenght++;
-				code -= 3;
 				break;
 			case 4:
 				bit = 1;
+				code -= (4 * pow(10, lenght));
 				lenght++;
-				code -= 4;
 				break;
 			case 5:
 				bit = 0;
+				code -= (4 * pow(10, lenght));
 				lenght++;
-				code -= 4;
 				break;
 			case 6:
 				bit = 1;
+				code -= (5 * pow(10, lenght));
 				lenght++;
-				code -= 5;
+
 				break;
 			default:
-				code -= (bit + 1)* pow(10, lenght);				//ELIMINO IL BIT VALUTATO
+				code -= (bit + 1) * pow(10, lenght);			//ELIMINO IL BIT VALUTATO
 			}
 			byte = byte | bit;									//PRENDO LA CODIFIA BINARIA DEL RESTO E LA METTO IN OR CON LE PRECEDENTI
 			bits_left--;										//BIT NON "UTILIZZATI"

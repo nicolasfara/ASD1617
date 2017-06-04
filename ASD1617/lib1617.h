@@ -14,7 +14,7 @@
 #define MAX_DEF 50
 #define MAX_WORD 20
 #define MIN_WORD 2
-#define ELEMENTS 31
+#define ELEMENTS sizeof(letter_frequencies) / sizeof(int)
 
 //NODO RBT
 typedef struct NODO {
