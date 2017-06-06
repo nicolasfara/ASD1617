@@ -46,6 +46,9 @@ int main(void) {
 	stringTemp = "eftd";
 	printf("\nRicerca Parola \"%s\" -> definizione : [%s]\n\n", stringTemp, searchDef(dictionary, stringTemp));
 
+	dictionary = importDictionary("od.txt");
+	printDictionary(dictionary);
+
 	compressHuffman(dictionary, "text.txt");
 	dictionary = NULL;
 	printf("\n\n\nHUFFF\n\n\n");

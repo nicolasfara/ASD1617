@@ -294,7 +294,7 @@ void printDictionaryFile(NODO * dictionary, FILE *f) {
 	if (dictionary != NULL && dictionary != sentinel) {
 		printDictionaryFile(dictionary->left, f);
 		fprintf(f, "\"%s\": ", dictionary->word);
-		fprintf(f, "[%s]\n", dictionary->def);
+		fprintf(f, "[%s]\r\n", dictionary->def);
 		printDictionaryFile(dictionary->right, f);
 	}
 }
@@ -518,9 +518,95 @@ int saveDictionary(NODO * dictionary, char * fileOutput) {
 	return 0;
 }
 
+char* readApici(FILE* f, char* nullChar, char* string) {
+
+	string[0] = '\0';
+	nullChar[0] = '\0';
+
+	//while (nullChar[0] = fgetc(f) != '"')
+		//continue;
+
+	while ((nullChar[0] = fgetc(f)) != '"') {
+
+		nullChar[1] = '\0';
+		strncat(string, nullChar, MAX_WORD);
+	}
+
+	return string;
+}
+
+char* readQuadre(FILE* f, char* nullChar, char* str) {
+
+	str[0] = '\0';
+	nullChar[0] = '\0';
+
+	while (nullChar[0] = fgetc(f) != '[')
+		continue;
+
+	while ((nullChar[0] = fgetc(f)) != ']') {
+
+		nullChar[1] = '\0';
+		strncat(str, nullChar, MAX_WORD);
+	}
+
+
+	if (!strncmp(str, "(null)", MAX_DEF))
+		return NULL;
+
+	return str;
+}
+
 NODO *importDictionary(char * fileInput)
 {
-	return NULL;
+	char* str = NULL;
+	char* nullChar = NULL;
+	int setP = 0;
+	NODO* root = NULL;
+	NODO* node = NULL;
+	FILE* f = fopen(fileInput, "rb");
+
+	nullChar = (char *)malloc(sizeof(char) * 2);
+	str = (char *)malloc(sizeof(char) * MAX_WORD);
+
+	if (f == NULL || nullChar == NULL || str == NULL)
+		return NULL;
+
+	nullChar[1] = '\0';
+	nullChar[0] = fgetc(f);
+
+	while (!feof(f)) {			
+		
+		node = (NODO*)malloc(sizeof(NODO));
+		node->word = (char *)malloc(sizeof(char) * MAX_WORD);
+		node->def = (char *)malloc(sizeof(char) * MAX_DEF);
+		if (node == NULL || node->word == NULL || node->def == NULL)
+			return NULL;
+
+		strncpy(node->word, readApici(f, nullChar, str), MAX_WORD);
+
+		if (readQuadre(f, nullChar, str) == NULL)
+			node->def = NULL;
+		else
+			strncpy(node->def, readQuadre(f, nullChar, str), MAX_DEF);		
+
+		node->isBlack = false;
+		node->left = NULL;
+		node->right = NULL;
+		node->parent = NULL;
+
+		insertRBT(&root, node);	
+
+		nullChar[0] = fgetc(f);
+		if (nullChar[0] == '\n') {
+			nullChar[0] = fgetc(f);
+			if (nullChar[0] == EOF)
+				break;
+		}	
+
+	}
+
+	fclose(f);
+	return root;
 }
 
 int searchAdvance(NODO * dictionary, char * word, char ** first, char ** second, char ** third) {
