@@ -258,7 +258,7 @@ NODO *createFromFile(char * nameFile)
 		tmp = getc(f);
 		//Controllo che il carattere letto sia una lettera (anche accentata)
 		for (i = 0; ((tmp >= 65 && tmp <= 90) || (tmp >= 97 && tmp <= 122) || (tmp >= 128 && tmp <= 165)); i++) {
-			tmp = tolower(tmp);
+			tmp = tolower(tmp);					
 			node->word[i] = tmp;
 			tmp = getc(f);
 		}
@@ -474,6 +474,8 @@ int cancWord(NODO ** dictionary, char * word)
 
 char *getWordAt(NODO *n, int index) {
 	int counter = 0;
+	if (n == NULL)
+		return NULL;
 	return find_index_word(n, index, &counter);
 }
 
@@ -733,7 +735,7 @@ void fill_table(unsigned int *code_table, HNode *tree_node, unsigned int code) {
 	if (tree_node->letter != 127)									//SE SIAMO ALLA FOGLIA (C'E' UN VALORE != DA 127)
 		code_table[(int)tree_node->letter] = code;					//"CODE" HA ASSUNTO IL VALORE "BINARIO" DEL PERCORSO DA RADICE->FOGLIA
 	else {															//SE NON SONO ANCORA GIUNTO ALLA FOGLIA
-		if ((code % 10) == 1 || (code % 10) == 2) {					//QUANDO CODE SUPERA IL MILIARDO (NON E' PIU' POSSIBILE CONTENERLO IN UN INT)
+		if ((code % 10) == 1 || (code % 10) == 2) {					
 			fill_table(code_table, tree_node->left, code + 3);		//SE VADO A SX IL RAMO HA VALORE 0(1) - IN QUESTO CASO E' STATO MESSO +3 PER EVITARE CHE L'INT RAGGIUNGESSE I 10 MILIARDI
 			fill_table(code_table, tree_node->right, code + 5);		//SE VADO A DX IL RAMO HA VALORE 1(2) - IN QUESTO CASO E' STATO MESSO +5 PER EVITARE CHE L'INT RAGGIUNGESSE I 10 MILIARDI
 		}
