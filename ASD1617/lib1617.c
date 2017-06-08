@@ -273,7 +273,6 @@ NODO *createFromFile(char * nameFile)
 		}
 		else {
 			insertRBT(&root, node); //Insert node in RBT
-			//printDictionary(root);
 		}
 		//Check if the file pointer is at the end
 		if (tmp == 0xff)
