@@ -520,7 +520,7 @@ int saveDictionary(NODO * dictionary, char * fileOutput) {
 	return 0;
 }
 
-char* readApici(FILE* f, char* nullChar, char* string) {
+/*char* readApici(FILE* f, char* nullChar, char* string) {
 
 	string[0] = '\0';
 	nullChar[0] = '\0';
@@ -535,9 +535,9 @@ char* readApici(FILE* f, char* nullChar, char* string) {
 	}
 
 	return string;
-}
+}*/
 
-char* readQuadre(FILE* f, char* nullChar, char* str) {
+/*char* readQuadre(FILE* f, char* nullChar, char* str) {
 
 	str[0] = '\0';
 	nullChar[0] = '\0';
@@ -556,9 +556,9 @@ char* readQuadre(FILE* f, char* nullChar, char* str) {
 		return NULL;
 
 	return str;
-}
+}*/
 
-NODO *importDictionary(char * fileInput)
+/*NODO *importDictionary(char * fileInput)
 {
 	char* str = NULL;
 	char* nullChar = NULL;
@@ -608,6 +608,84 @@ NODO *importDictionary(char * fileInput)
 	}
 
 	fclose(f);
+	return root;
+}*/
+
+void removeChar(char* str, char garbage, char garbage2) {
+	char *src, *dst; //to strings pointer
+	for (src = dst = str; *src != '\0'; src++) {
+		*dst = *src; //copy char form src to dst
+		if (*dst != garbage && *dst != garbage2) dst++; //not find garbage character
+	}
+	*dst = '\0'; //ad end string
+}
+
+short readWordDef(FILE* f, char* word, char* def, bool* endFile) {
+
+	char rchar; //simple sentinel for find EOF
+	//Check if the argumets are omogeneous
+	if (f == NULL || word == NULL || def == NULL)
+		return -1; //bad
+
+	fscanf(f, "%s", word); //read the line
+	removeChar(word, '\"', ':');
+
+	fscanf(f, "%[^\"]s", def); //read the line
+	removeChar(def, '[', ']'); //remove [] character
+	removeChar(def, '\n', '\ ');
+	//detect the EOF
+	if (rchar = getc(f) == EOF)
+		*endFile = true;
+
+	return 0; //ok
+
+}
+
+NODO *importDictionary(char * fileInput) {
+
+	//open file
+	FILE* f = fopen(fileInput, "rb");
+	if (f == NULL)
+		return NULL;
+
+	bool endFile = false; //for detect EOF
+	NODO* root = NULL;
+	NODO* node = NULL;
+
+	//Allocate string for read from file
+	char* word = (char*)malloc(sizeof(char) * MAX_WORD + 5);
+	if (word == NULL)
+		return NULL;
+	char* def = (char*)malloc(sizeof(char) * MAX_DEF + 5);
+	if (def == NULL)
+		return NULL;
+	//loop end of file
+	while (!endFile) {
+		//read word and definition
+		if (readWordDef(f, word, def, &endFile) == -1)
+			return NULL;
+		//new node
+		node = (NODO*)malloc(sizeof(NODO));
+		if (node == NULL)
+			return NULL;
+		node->def = (char*)malloc(sizeof(char) * MAX_DEF);
+		node->word = (char*)malloc(sizeof(char) * MAX_WORD);
+		if (node->word == NULL || node->def == NULL)
+			return NULL;
+		//check if the def is null
+		if (!strncmp(def, "(null)", MAX_DEF))
+			node->def = NULL;
+		else 
+			strncpy(node->def, def, MAX_DEF);
+		strncpy(node->word, word, MAX_WORD);
+		node->isBlack = false;
+		node->left = NULL;
+		node->parent = NULL;
+		node->right = NULL;
+		//add to the tree
+		insertRBT(&root, node);
+	}
+
 	return root;
 }
 
