@@ -673,7 +673,7 @@ NODO *importDictionary(char * fileInput) {
 		if (node->word == NULL || node->def == NULL)
 			return NULL;
 		//check if the def is null
-		if (!strncmp(def, "(null)", MAX_DEF))
+		if (!strncmp(def, "(null)\r", MAX_DEF))
 			node->def = NULL;
 		else 
 			strncpy(node->def, def, MAX_DEF);
@@ -870,8 +870,8 @@ void compress_string(char *n_string, FILE *output, unsigned int *code_table) {
 				code = code_table[29];							//CODIFICA BIN
 			}
 			if (c == 27) {										//CARATTERE "ESCAPE"
-				lenght = (int)log10((code_table[ELEMENTS - 1]) + 1);		//LUNGHEZZA BINARIA DEL NUMERO CODIFICATO
-				code = code_table[ELEMENTS - 1];				//CODIFICA BIN
+				lenght = (int)log10((code_table[30]) + 1);		//LUNGHEZZA BINARIA DEL NUMERO CODIFICATO
+				code = code_table[30];							//CODIFICA BIN
 			}
 		}
 		while (lenght + 1 > 0)									//MI SCORRO TUTTI I "BIT" DELLA CODIFICA
