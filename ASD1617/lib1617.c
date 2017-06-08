@@ -259,7 +259,7 @@ NODO *createFromFile(char * nameFile)
 		tmp = getc(f);
 		//Controllo che il carattere letto sia una lettera (anche accentata)
 		for (i = 0; ((tmp >= 65 && tmp <= 90) || (tmp >= 97 && tmp <= 122) || (tmp >= 128 && tmp <= 165)); i++) {
-			if (tmp < 128 || tmp > 165)
+			//if (tmp < 128 || tmp > 165)
 				tmp = tolower(tmp);					
 			node->word[i] = tmp;
 			tmp = getc(f);
@@ -270,7 +270,7 @@ NODO *createFromFile(char * nameFile)
 			free(node); //Release node
 		}
 		else {
-			convert_accent(node->word, MAX_WORD);
+			//convert_accent(node->word, MAX_WORD);
 			insertRBT(&root, node); //Insert node in RBT
 			//printDictionary(root);
 		}
@@ -1105,3 +1105,5 @@ void convert_accent(char *string, int dim) {
 	}
 	return;
 }
+
+
