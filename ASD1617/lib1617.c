@@ -27,6 +27,7 @@ char *find_index_word(NODO *, int, int *);
 int decompress_file(FILE *, NODO **, HNode *);
 int search_in_node(NODO *, MSWNode *, char *);
 int levenshtein(const char *, int, const char *, int);
+void convert_accent(char *, int);
 
 //FUNZIONI - IN WORKING
 
@@ -258,7 +259,8 @@ NODO *createFromFile(char * nameFile)
 		tmp = getc(f);
 		//Controllo che il carattere letto sia una lettera (anche accentata)
 		for (i = 0; ((tmp >= 65 && tmp <= 90) || (tmp >= 97 && tmp <= 122) || (tmp >= 128 && tmp <= 165)); i++) {
-			tmp = tolower(tmp);					
+			if (tmp < 128 || tmp > 165)
+				tmp = tolower(tmp);					
 			node->word[i] = tmp;
 			tmp = getc(f);
 		}
@@ -268,6 +270,7 @@ NODO *createFromFile(char * nameFile)
 			free(node); //Release node
 		}
 		else {
+			convert_accent(node->word, MAX_WORD);
 			insertRBT(&root, node); //Insert node in RBT
 			//printDictionary(root);
 		}
@@ -710,7 +713,7 @@ int searchAdvance(NODO * dictionary, char * word, char ** first, char ** second,
 int compressHuffman(NODO * dictionary, char * file_name) {
 	char eof = 27;
 	unsigned int code_table[ELEMENTS];
-	FILE *output_file = fopen(file_name, "w");
+	FILE *output_file = fopen(file_name, "wb");
 	HNode *root = build_huffman_tree();
 	if (root == NULL)
 		return -1;
@@ -724,7 +727,7 @@ int compressHuffman(NODO * dictionary, char * file_name) {
 
 int decompressHuffman(char * file_name, NODO ** dictionary) { 
 	int x = 0;
-	FILE *input_file = fopen(file_name, "r");
+	FILE *input_file = fopen(file_name, "rb");
 	HNode *root = build_huffman_tree();
 	if (sentinel == NULL)
 		x = createSentinel();
@@ -1066,4 +1069,39 @@ int levenshtein(const char *s, int ls, const char *t, int lt) {
 	if (a > c) a = c;
 
 	return a + 1;
+}
+
+void convert_accent(char *string, int dim) {
+	register int k;
+	for (register int i = 0; string[i] != '\0' && i < dim; i++) {
+		if (string[i] >= 128 && string[i] <= 165) {
+			if (strlen(string) == dim - 1) {
+				string[i] = 'a';
+				return;
+			}
+			for (k = dim - 1; k > i; k--)
+				string[k] = string[k - 1];
+			string[k] = 96;
+			k--;
+			if (string[k] == 128 || string[k] == 135)
+				string[k] = 'c';
+			if (string[k] == 129 || (string[k] >= 150 && string[k] <= 152) || string[k] == 154 || string[k] == 163)
+				string[k] = 'u';
+			if (string[k] == 130 || (string[k] >= 136 && string[k] <= 138) || string[k] == 144 || string[k] == 156)
+				string[k] = 'e';
+			if ((string[k] >= 131 && string[k] <= 134) || string[k] == 142 || string[k] == 143 || string[k] == 145 || string[k] == 146 || string[k] == 160)
+				string[k] = 'a';
+			if (string[k] >= 139 && string[k] <= 141 || string[k] == 161)
+				string[k] = 'i';
+			if ((string[k] >= 147 && string[k] <= 149) || string[k] == 153 || string[k] == 155 || string[k] == 157 || string[k] == 162)
+				string[k] = 'o';
+			if (string[k] == 158)
+				string[k] = 'x';
+			if (string[k] == 159)
+				string[k] = 'f';
+			if (string[k] == 164 || string[k] == 165)
+				string[k] = 'n';
+		}
+	}
+	return;
 }
