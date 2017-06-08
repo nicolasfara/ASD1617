@@ -346,8 +346,8 @@ void rb_deleteFixUp(NODO** root, NODO * x) {
 
 	NODO* w = NULL;
 
-	while (x != *root && x->isBlack == true)
-	{
+	while (*root != x && x->isBlack == true) {
+		
 		if (x == x->parent->left) {
 			w = x->parent->right;
 			if (w->isBlack == false) {
@@ -405,7 +405,27 @@ void rb_deleteFixUp(NODO** root, NODO * x) {
 	x->isBlack = true;
 }
 
+NODO* treeMinimum(NODO* x) {
+
+	while (x->left != sentinel)
+		x = x->left;
+
+	return x;
+}
+
 NODO* treeSuccessor(NODO* root, NODO* x) {
+	if (x->right != sentinel)
+		return treeMinimum(x->right);
+
+	NODO* y = x->parent;
+	while (y != NULL && x == y->right) {
+		x = y;
+		y = y->parent;
+	}
+	return y;
+}
+
+/*NODO* treeSuccessor(NODO* root, NODO* x) {
 
 	NODO* y = NULL;
 
@@ -426,7 +446,7 @@ NODO* treeSuccessor(NODO* root, NODO* x) {
 
 		return y;
 	}
-}
+}*/
 
 void rb_delete(NODO** root, NODO* z) {
 	
@@ -446,7 +466,7 @@ void rb_delete(NODO** root, NODO* z) {
 	}
 
 	if (y != z) {
-		if (y->isBlack == true) rb_deleteFixUp(root, x);
+		if (y->isBlack == true) rb_deleteFixUp(&_root, x);
 
 		y->left = z->left;
 		y->right = z->right;
@@ -460,7 +480,7 @@ void rb_delete(NODO** root, NODO* z) {
 		free(z);
 	}
 	else {
-		if (y->isBlack == true) rb_deleteFixUp(root, x);
+		if (y->isBlack == true) rb_deleteFixUp(&_root, x);
 		free(y);
 	}
 }
