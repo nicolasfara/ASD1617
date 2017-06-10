@@ -57,7 +57,7 @@ int main(void) {
 	printf("\nNumero di parole salvate nel dizionario : %d\n\n", countWord(dictionary));
 	char *first = NULL, *second = NULL, *third= NULL, *word = NULL;
 	printf("%d\n", searchAdvance(dictionary, word, &first, &second, &third));
-	word = "algoritmo";
+	strcmp(word, "algoritmo");
 	printf("%d %s %s %s\n", searchAdvance(dictionary, word, &first, &second, &third), first, second, third);
 	
 	system("PAUSE");

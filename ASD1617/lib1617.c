@@ -426,29 +426,6 @@ NODO* treeSuccessor(NODO* root, NODO* x) {
 	return y;
 }
 
-/*NODO* treeSuccessor(NODO* root, NODO* x) {
-
-	NODO* y = NULL;
-
-	if ((y = x->right) == sentinel) {
-
-		while (y->left != sentinel)
-			y = y->left;
-
-		return y;
-	}
-	else {
-		y = x->parent;
-		while (x == y->right) {
-			x = y;
-			y = y->parent;
-		}
-		if (y == root) return sentinel;
-
-		return y;
-	}
-}*/
-
 void rb_delete(NODO** root, NODO* z) {
 	
 	NODO* y = NULL;
@@ -543,97 +520,6 @@ int saveDictionary(NODO * dictionary, char * fileOutput) {
 	fclose(f); //Close file
 	return 0;
 }
-
-/*char* readApici(FILE* f, char* nullChar, char* string) {
-
-	string[0] = '\0';
-	nullChar[0] = '\0';
-
-	//while (nullChar[0] = fgetc(f) != '"')
-		//continue;
-
-	while ((nullChar[0] = fgetc(f)) != '"') {
-
-		nullChar[1] = '\0';
-		strncat(string, nullChar, MAX_WORD);
-	}
-
-	return string;
-}*/
-
-/*char* readQuadre(FILE* f, char* nullChar, char* str) {
-
-	str[0] = '\0';
-	nullChar[0] = '\0';
-
-	while (nullChar[0] = fgetc(f) != '[')
-		continue;
-
-	while ((nullChar[0] = fgetc(f)) != ']') {
-
-		nullChar[1] = '\0';
-		strncat(str, nullChar, MAX_WORD);
-	}
-
-
-	if (!strncmp(str, "(null)", MAX_DEF))
-		return NULL;
-
-	return str;
-}*/
-
-/*NODO *importDictionary(char * fileInput)
-{
-	char* str = NULL;
-	char* nullChar = NULL;
-	int setP = 0;
-	NODO* root = NULL;
-	NODO* node = NULL;
-	FILE* f = fopen(fileInput, "rb");
-
-	nullChar = (char *)malloc(sizeof(char) * 2);
-	str = (char *)malloc(sizeof(char) * MAX_WORD);
-
-	if (f == NULL || nullChar == NULL || str == NULL)
-		return NULL;
-
-	nullChar[1] = '\0';
-	nullChar[0] = fgetc(f);
-
-	while (!feof(f)) {			
-		
-		node = (NODO*)malloc(sizeof(NODO));
-		node->word = (char *)malloc(sizeof(char) * MAX_WORD);
-		node->def = (char *)malloc(sizeof(char) * MAX_DEF);
-		if (node == NULL || node->word == NULL || node->def == NULL)
-			return NULL;
-
-		strncpy(node->word, readApici(f, nullChar, str), MAX_WORD);
-
-		if (readQuadre(f, nullChar, str) == NULL)
-			node->def = NULL;
-		else
-			strncpy(node->def, readQuadre(f, nullChar, str), MAX_DEF);		
-
-		node->isBlack = false;
-		node->left = NULL;
-		node->right = NULL;
-		node->parent = NULL;
-
-		insertRBT(&root, node);	
-
-		nullChar[0] = fgetc(f);
-		if (nullChar[0] == '\n') {
-			nullChar[0] = fgetc(f);
-			if (nullChar[0] == EOF)
-				break;
-		}	
-
-	}
-
-	fclose(f);
-	return root;
-}*/
 
 void removeChar(char* str, char garbage, char garbage2) {
 	char *src, *dst; //to strings pointer
@@ -851,7 +737,7 @@ void fill_table(unsigned int *code_table, HNode *tree_node, unsigned int code) {
 	return;
 }
 
-int compress_node(NODO * n, FILE * output, int *code_table) {
+int compress_node(NODO * n, FILE * output, unsigned int *code_table) {
 	if (n == NULL || n->word == NULL)
 		return -1;
 	compress_node(n->left, output, code_table);
