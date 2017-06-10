@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016/Arch Linux) (preloaded format=pdflatex 2017.4.23)  10 JUN 2017 18:21
+This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016/Arch Linux) (preloaded format=pdflatex 2017.4.23)  10 JUN 2017 19:22
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1076,11 +1076,11 @@ Underfull \vbox (badness 10000) has occurred while \output is active []
  [7]
 [8] (./relazione_ASD1617.aux) ) 
 Here is how much of TeX's memory you used:
- 18725 strings out of 493013
- 359738 string characters out of 6139317
+ 18727 strings out of 493013
+ 359754 string characters out of 6139317
  540598 words of memory out of 5000000
  21832 multiletter control sequences out of 15000+600000
- 14152 words of font info for 86 fonts, out of 8000000 for 9000
+ 14203 words of font info for 87 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  64i,9n,60p,8828b,385s stack positions out of 5000i,500n,10000p,200000b,80000s
 </usr/share/texmf-dist/fonts/type1/public/amsfon
@@ -1095,7 +1095,7 @@ st/fonts/type1/public/amsfonts/cm/cmssbx10.pfb></usr/share/texmf-dist/fonts/typ
 e1/public/amsfonts/cm/cmsy10.pfb></usr/share/texmf-dist/fonts/type1/public/amsf
 onts/cm/cmti10.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10
 .pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt12.pfb>
-Output written on relazione_ASD1617.pdf (10 pages, 170057 bytes).
+Output written on relazione_ASD1617.pdf (10 pages, 170114 bytes).
 PDF statistics:
  96 PDF objects out of 1000 (max. 8388607)
  69 compressed objects within 1 object stream
