@@ -257,22 +257,13 @@ NODO *createFromFile(char * nameFile)
 		node->parent = NULL;
 
 		tmp = getc(f);
-		//Controllo che il carattere letto sia una lettera (anche accentata)
-<<<<<<< HEAD
-		for (i = 0; ((tmp >= 65 && tmp <= 90) || (tmp >= 97 && tmp <= 122) || (tmp >= 128 && tmp <= 165)); i++) {
-			switch (tmp)
-			{
-			case :
-				break;
-			}
-			tmp = tolower(tmp);					
-=======
+		//Controllo che il carattere letto sia una lettera (anche accentata)					
 		for (i = 0; ((tmp >= 65 && tmp <= 90) || (tmp >= 97 && tmp <= 122) || (tmp >= 192 && tmp <= 252)); i++) {
 			if (tmp >= 192 && tmp <= 252)
 				tmp = convert_accent(tmp);
 			else
 				tmp = tolower(tmp);					
->>>>>>> efa85f50bfa8a643166402e3ee7ac10063f8c08c
+
 			node->word[i] = tmp;
 			tmp = getc(f);
 		}
