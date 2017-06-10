@@ -15,7 +15,14 @@ void leftRotate(NODO **, NODO *);
 void rightRotate(NODO **, NODO *);
 void insertFixUp(NODO **, NODO **);
 void insertRBT(NODO **, NODO *);
-NODO* searchWord(NODO *, char *);
+NODO * searchWord(NODO *, char *);
+short readWordDef(FILE*, char *, char *, bool *);
+void removeChar(char *, char, char);
+void rb_delete(NODO **, NODO *);
+NODO * treeSuccessor(NODO *, NODO *);
+void rb_trasplant(NODO **, NODO *, NODO *);
+void rb_deleteFixUp(NODO **, NODO *);
+NODO * treeMinimum(NODO *);
 
 HNode * build_huffman_tree();
 HNode * allocates_node(int);
@@ -29,199 +36,6 @@ int search_in_node(NODO *, MSWNode *, char *);
 int levenshtein(const char *, int, const char *, int);
 unsigned char convert_accent(unsigned char);
 int empties_dictionary(NODO **);
-
-//FUNZIONI - IN WORKING
-
-int createSentinel() {
-	//Create node
-	sentinel = (NODO*)malloc(sizeof(NODO));
-	//Check for a safe malloc
-	if (sentinel == NULL)
-		return -1; //Bad malloc
-
-	//Update record for sentinel
-	sentinel->isBlack = true;
-	sentinel->parent = NULL;
-	sentinel->left = NULL;
-	sentinel->right = NULL;
-	sentinel->word = NULL;
-	sentinel->def = NULL;
-
-	return 0; //Ok
-}
-
-/*
- *RETURN 0: n2 is grater than n1
- *RETURN 1: n1 is grater than n2
- *RETURN 2: n1 is n2
- *RETURN 3: n1-> NULL or n2-> NULL
-*/
-unsigned short alphabeticalOrder(char* n1, char* n2) {
-	
-	if (n1 == NULL || n2 == NULL)
-		return 3;
-	//Check character 
-	for (int i = 0; i < MAX_WORD; i++) {
-		if (n1[i] < n2[i])
-			return 0;
-		else if(n1[i] > n2[i])
-			return 1;
-	}
-
-	return 2;
-}
-
-NODO* searchWord(NODO* root, char* word) {
-
-	if ( root == NULL || alphabeticalOrder(root->word, word) == 2)
-		return root;
-
-	switch (alphabeticalOrder(root->word, word)) {
-	case 0:
-		return searchWord(root->right, word);
-		break;
-	case 1:
-		return searchWord(root->left, word);
-		break;
-	}
-
-	//Here there is an error
-	return NULL;
-
-}
-
-void leftRotate(NODO** root, NODO* x)
-{
-	NODO* T = *root;
-	NODO* y = x->right; //Create new NODO and assign to x.right
-	x->right = y->left; //Move left sub-tree (y) on the x sub-tree
-
-	if (y->left != sentinel) y->left->parent = x;
-
-	y->parent = x->parent; //Connect parent of x to y
-
-	if (x->parent == sentinel)
-		*root = y;
-	else if (x == x->parent->left)
-		x->parent->left = y;
-
-	else x->parent->right = y;
-
-	y->left = x; //Move x on the left of y
-	x->parent = y;
-}
-
-void rightRotate(NODO** root, NODO* y)
-{
-	NODO* T = *root;
-	NODO* x = y->left; //Create new NODO and assign to x.right
-	y->left = x->right; //Move left sub-tree (y) on the x sub-tree
-
-	if (x->right != sentinel) x->right->parent = y;
-
-	x->parent = y->parent; //Connect parent of x to y
-
-	if (y->parent == sentinel)
-		*root = x;
-	else if (y == y->parent->right)
-		y->parent->right = x;
-
-	else y->parent->left = x;
-
-	x->right = y; //Move x on the left of y
-	y->parent = x;
-}
-
-void insertFixUp(NODO** root, NODO** node) {
-	NODO* T = *root;
-	NODO* z = *node; //Puntatore temporaneo al nodo
-	NODO* y = NULL;
-
-	while ( z-> parent != NULL && z->parent->isBlack == false)	{
-		if (z->parent == z->parent->parent->left) {
-			y = z->parent->parent->left;
-			if (y->isBlack == false) {
-				z->parent->isBlack = true;
-				y->isBlack = true;
-				z->parent->parent->isBlack = false;
-				z = z->parent->parent;
-			} else {
-				if (z == z->parent->right) {
-					z = z->parent;
-					leftRotate(root, z);
-				}
-				z->parent->isBlack = true;
-				z->parent->parent->isBlack = false;
-				rightRotate(root, z->parent->parent);
-			}
-		} else {
-			y = z->parent->parent->left;
-			if (y->isBlack == false) {
-				z->parent->isBlack = true;
-				y->isBlack = true;
-				z->parent->parent->isBlack = false;
-				z = z->parent->parent;
-			} else {
-				if (z == z->parent->left) {
-					z = z->parent;
-					rightRotate(root, z);
-				}
-				z->parent->isBlack = true;
-				z->parent->parent->isBlack = false;
-				leftRotate(root, z->parent->parent);
-			}
-		}
-	}
-
-	T->isBlack = true;
-}
-
-void insertRBT(NODO** root, NODO* node) {
-	NODO* y = NULL;
-	NODO* x = NULL;
-	NODO* T = *root;
-	
-	y = sentinel;
-	x = *root;
-
-	while (x != sentinel && x != NULL) {
-		y = x;
-		switch (alphabeticalOrder(node->word, x->word))	{
-		case 0:
-			x = x->left;
-			break;
-		case 1:
-			x = x->right;
-			break;
-		case 2:
-			return;
-		default:
-			break;
-		}
-	}
-	
-	node->parent = y;
-	if (y == sentinel)
-		*root = node;
-	else {
-		switch (alphabeticalOrder(node->word, y->word))	{
-		case 0:
-			y->left = node;
-			break;
-		case 1:
-			y->right = node;
-			break;
-		case 2:
-			return;
-		default:
-			break;
-		}
-	}
-	node->left = sentinel;
-	node->right = sentinel;
-	node->isBlack = false;
-	insertFixUp(root, &node);
-}
 
 //FUNZIONI "BASE"
 
@@ -285,7 +99,7 @@ NODO *createFromFile(char * nameFile)
 	return root;
 }
 
-void printDictionary(NODO * dictionary) {
+void printDictionary(NODO * dictionary) {//stampa in-order
 	if (dictionary != NULL && dictionary != sentinel) {
 		printDictionary(dictionary->left);
 		printf("\"%s\": ", dictionary->word);
@@ -294,8 +108,7 @@ void printDictionary(NODO * dictionary) {
 	}
 }
 
-//Function for print on file the dictionary
-void printDictionaryFile(NODO * dictionary, FILE *f) {
+void printDictionaryFile(NODO * dictionary, FILE *f) { //Function for print on file the dictionary
 	if (dictionary != NULL && dictionary != sentinel) {
 		printDictionaryFile(dictionary->left, f);
 		fprintf(f, "\"%s\": ", dictionary->word);
@@ -328,176 +141,9 @@ int insertWord(NODO ** dictionary, char * word) {
 		return 1;
 	strcpy_s(node->word, MAX_WORD, word);
 
-	insertRBT(dictionary, node);
+	insertRBT(dictionary, node);		//inserimento del nodo
 	return 0;
 }
-
-void rb_trasplant(NODO** root, NODO* u, NODO* v) {
-
-	if (u->parent == sentinel)
-		*root = v;
-	else if (u == u->parent->left)
-		u->parent->left = v;
-	else {
-		u->parent->right = v;		
-	}
-	
-	v->parent = u->parent;
-}
-
-void rb_deleteFixUp(NODO** root, NODO * x) {
-
-	NODO* w = NULL;
-
-	while (*root != x && x->isBlack == true) {
-		
-		if (x == x->parent->left) {
-			w = x->parent->right;
-			if (w->isBlack == false) {
-				w->isBlack = true;
-				x->parent->isBlack = false;
-				leftRotate(root, x->parent);
-				w = x->parent->right;
-			}
-			if ((w->left->isBlack == true) && (w->right->isBlack == true)) {
-				w->isBlack = false;
-				x = x->parent;
-			}
-			else {
-				if (w->right->isBlack == true) {
-					w->left->isBlack = true;
-					w->isBlack = false;
-					rightRotate(root, w);
-					w = x->parent->right;
-				}
-				w->isBlack = x->parent->isBlack;
-				x->parent->isBlack = true;
-				w->right->isBlack = true;
-				leftRotate(root, x->parent);
-				x = *root;
-			}
-		}
-		else {
-			w = x->parent->left;
-			if (w->isBlack == false) {
-				w->isBlack = true;
-				x->parent->isBlack = false;
-				rightRotate(root, x->parent);
-				w = x->parent->left;
-			}
-			if ((w->right->isBlack == true) && (w->left->isBlack == true)) {
-				w->isBlack = false;
-				x = x->parent;
-			}
-			else {
-				if (w->left->isBlack == true) {
-					w->right->isBlack = true;
-					w->isBlack = false;
-					leftRotate(root, w);
-					w = x->parent->left;
-				}
-				w->isBlack = x->parent->isBlack;
-				x->parent->isBlack = true;
-				w->left->isBlack = true;
-				rightRotate(root, x->parent);
-				x = *root;
-			}
-		}
-
-	}
-	x->isBlack = true;
-}
-
-NODO* treeMinimum(NODO* x) {
-
-	while (x->left != sentinel)
-		x = x->left;
-
-	return x;
-}
-
-NODO* treeSuccessor(NODO* root, NODO* x) {
-	if (x->right != sentinel)
-		return treeMinimum(x->right);
-
-	NODO* y = x->parent;
-	while (y != NULL && x == y->right) {
-		x = y;
-		y = y->parent;
-	}
-	return y;
-}
-
-void rb_delete(NODO** root, NODO* z) {
-	NODO* y = z;
-	NODO* x;
-	bool original = y->isBlack;
-	if (z->left == sentinel) {
-		x = z->right;
-		rb_trasplant(root, z, z->right);
-	}
-	else if (z->right == sentinel) {
-		x = z->left;
-		rb_trasplant(root, z, z->left);
-	}
-	else {
-		y = treeMinimum(z->right);
-		original = y->isBlack;
-		x = y->right;
-		if (y->parent == z)
-			x->parent = y;
-		else {
-			rb_trasplant(root, y, y->right);
-			y->right = z->right;
-			y->right->parent = y;
-		}
-		rb_trasplant(root, z, y);
-		y->left = z->left;
-		y->left->parent = y;
-		y->isBlack = z->isBlack;
-	}
-	if (original == true)
-		rb_deleteFixUp(root, x);
-
-	free(z);
-}
-
-/*void rb_delete(NODO** root, NODO* z) {
-	
-	NODO* y = NULL;
-	NODO* x = NULL;
-	NODO* _root = *root;
-
-	y = ((z->left == sentinel) || (z->right == sentinel)) ? z : treeSuccessor(*root, z);
-	x = (y->left == sentinel) ? y->right : y->left;
-	if (_root == (x->parent = y->parent))
-		_root->left = x;
-	else {
-		if (y == y->parent->left)
-			y->parent->left = x;
-		else
-			y->parent->right = x;
-	}
-
-	if (y != z) {
-		if (y->isBlack == true) rb_deleteFixUp(&_root, x);
-
-		y->left = z->left;
-		y->right = z->right;
-		y->parent = z->parent;
-		y->isBlack = z->isBlack;
-		z->left->parent = z->right->parent = y;
-		if (z == z->parent->left)
-			z->parent->left = y;
-		else
-			z->parent->right = y;
-		free(z);
-	}
-	else {
-		if (y->isBlack == true) rb_deleteFixUp(&_root, x);
-		free(y);
-	}
-}*/
 
 int cancWord(NODO ** dictionary, char * word)
 {
@@ -513,7 +159,7 @@ char *getWordAt(NODO *n, int index) {
 	int counter = 0;
 	if (n == NULL)
 		return NULL;
-	return find_index_word(n, index, &counter);
+	return find_index_word(n, index, &counter);		//richiamo una funzione ausiliaria
 }
 
 int insertDef(NODO * dictionary, char * word, char * def)
@@ -555,37 +201,6 @@ int saveDictionary(NODO * dictionary, char * fileOutput) {
 
 	fclose(f); //Close file
 	return 0;
-}
-
-void removeChar(char* str, char garbage, char garbage2) {
-	char *src, *dst; //to strings pointer
-	for (src = dst = str; *src != '\0'; src++) {
-		*dst = *src; //copy char form src to dst
-		if (*dst != garbage && *dst != garbage2) dst++; //not find garbage character
-	}
-	*dst = '\0'; //ad end string
-}
-
-short readWordDef(FILE* f, char* word, char* def, bool* endFile) {
-
-	char rchar; //simple sentinel for find EOF
-	//Check if the argumets are omogeneous
-	if (f == NULL || word == NULL || def == NULL)
-		return -1; //bad
-
-	fscanf(f, "%s", word); //read the line
-	removeChar(word, '\"', ':');
-
-	fscanf(f, "%[^\"]s", def); //read the line
-	removeChar(def, '[', ']'); //remove [] character
-	removeChar(def, '\n', '\ ');
-	removeChar(def, '\r', '\r');
-	//detect the EOF
-	if (rchar = getc(f) == EOF)
-		*endFile = true;
-
-	return 0; //ok
-
 }
 
 NODO *importDictionary(char * fileInput) {
@@ -637,8 +252,10 @@ NODO *importDictionary(char * fileInput) {
 }
 
 int searchAdvance(NODO * dictionary, char * word, char ** first, char ** second, char ** third) {
-	if (word == NULL || dictionary == NULL)
+	if (word == NULL || dictionary == NULL) {
+		*first = *second = *third = NULL;
 		return -1;
+	}
 
 	MSWNode head[3];
 	head[0].w_pointer = first;
@@ -646,24 +263,22 @@ int searchAdvance(NODO * dictionary, char * word, char ** first, char ** second,
 	head[2].w_pointer = third;
 	head[0].distance = head[1].distance = head[2].distance = 0x7fff;
 
-	int res = search_in_node(dictionary, head, word);
-	if (head[0].distance == 0x7fff ||
-		head[1].distance == 0x7fff ||
-		head[2].distance == 0x7fff)
+	int res = search_in_node(dictionary, head, word);	//chiamo search in node
+	if (head[2].distance == 0x7fff)						//se ho trovato solo 2 parole simili
 		return -1;
 	return res;
 }
 
 int compressHuffman(NODO * dictionary, char * file_name) {
 	char eof = 27;
-	unsigned int code_table[ELEMENTS];
+	unsigned int code_table[ELEMENTS];		//tabella delle codifiche
 	FILE *output_file = fopen(file_name, "wb");
-	HNode *root = build_huffman_tree();
+	HNode *root = build_huffman_tree();		//albero delle codifiche
 	if (dictionary == NULL || root == NULL)
 		return -1;
-	fill_table(code_table, root, 0);
-	compress_node(dictionary, output_file, code_table);
-	compress_string(&eof, output_file, code_table);
+	fill_table(code_table, root, 0);		//salvo le codifiche nella tabella
+	compress_node(dictionary, output_file, code_table);	//comprimo
+	compress_string(&eof, output_file, code_table);		
 	fclose(output_file);
 
 	return 0;
@@ -673,30 +288,19 @@ int decompressHuffman(char * file_name, NODO ** dictionary) {
 	int x = 0;
 	FILE *input_file = fopen(file_name, "rb");
 	HNode *root = build_huffman_tree();
-	empties_dictionary(dictionary);
+	empties_dictionary(dictionary);						//svuoto il dizionario attuale
 	if (sentinel == NULL)
 		x = createSentinel();
 	(*dictionary) = sentinel;
 	if (root == NULL || input_file == NULL || x == -1)
 		return -1;
-	x = decompress_file(input_file, dictionary, root);
+	x = decompress_file(input_file, dictionary, root);	//decomprimo il file
 	fclose(input_file);
 
 	return x;
 }
 
-int empties_dictionary(NODO **dictionary) {
-	if ((*dictionary) == sentinel || (*dictionary) == NULL)
-		return 0;
-	NODO *l = (*dictionary)->left;
-	NODO *r = (*dictionary)->right;
-	free((*dictionary));
-	empties_dictionary(&l);
-	empties_dictionary(&r);
-	return 0;
-}
-
-//FUNZIONI AUSILIARIE - COMPLETE
+//FUNZIONI AUSILIARIE
 
 HNode *build_huffman_tree() {
 	HNode *nodes_head = allocates_node(0);				//ALLOCO IL PRIMO NODO DELLA LISTA
@@ -789,7 +393,7 @@ void fill_table(unsigned int *code_table, HNode *tree_node, unsigned int code) {
 int compress_node(NODO * n, FILE * output, unsigned int *code_table) {
 	if (n == NULL || n->word == NULL)
 		return -1;
-	compress_node(n->left, output, code_table);
+	compress_node(n->left, output, code_table);			//compressione in order
 	compress_string(n->word, output, code_table);
 	compress_string(n->def, output, code_table);
 	compress_node(n->right, output, code_table);
@@ -991,14 +595,14 @@ int search_in_node(NODO *n, MSWNode *head, char *word) {
 		int ln = strlen(n->word);
 		int lw = strlen(word);
 		int dist = levenshtein(n->word, ln, word, lw);
-		if (dist < head[2].distance) {
+		if (dist < head[2].distance) {		//se la nuova parola è più simile la sostituisco alla meno simile di quelle gia salvate
 			head[2].distance = dist;
 			*(head[2].w_pointer) = n->word;
-			if (head[2].distance < head[1].distance) {
+			if (head[2].distance < head[1].distance) { //se è più simile della seconda ne cambio posizione
 				MSWNode tmp = head[1];
 				head[1] = head[2];
 				head[2] = tmp;
-				if (head[1].distance < head[0].distance) {
+				if (head[1].distance < head[0].distance) { //idem col precedente if
 					tmp = head[0];
 					head[0] = head[1];
 					head[1] = tmp;
@@ -1016,20 +620,20 @@ int levenshtein(const char *s, int ls, const char *t, int lt) {
 		return ls;
 
 	if (s[ls] == t[ls])
-		return levenshtein(s, ls - 1, t, lt - 1);
+		return levenshtein(s, ls - 1, t, lt - 1);		//mi sposto sui vari caratteri delle parole
 
 	int a = levenshtein(s, ls - 1, t, lt - 1);
 	int b = levenshtein(s, ls, t, lt - 1);
 	int c = levenshtein(s, ls - 1, t, lt);
 
-	if (a > b) a = b;
+	if (a > b) a = b;									//prendo la più simile
 	if (a > c) a = c;
 
 	return a + 1;
 }
 
 unsigned char convert_accent(unsigned char c) {
-	if ((c >= 192 && c <= 198) || (c >= 224 && c <= 230))
+	if ((c >= 192 && c <= 198) || (c >= 224 && c <= 230))	//trasformo gli accenti in caratteri
 		return 'a';
 	if ((c >= 200 && c <= 203) || (c >= 232 && c <= 235))
 		return 'e';
@@ -1053,4 +657,370 @@ unsigned char convert_accent(unsigned char c) {
 		return 'x';
 	if (c == 221)
 		return 'y';
+}
+
+int empties_dictionary(NODO **dictionary) {
+	if ((*dictionary) == sentinel || (*dictionary) == NULL)
+		return 0;
+	NODO *l = (*dictionary)->left;				//salvo due sottoalberi (figli)
+	NODO *r = (*dictionary)->right;
+	free((*dictionary));						//elimino la radice
+	empties_dictionary(&l);						//richiamo sui sottoalberi
+	empties_dictionary(&r);
+	return 0;
+}
+
+short readWordDef(FILE* f, char* word, char* def, bool* endFile) {
+
+	char rchar; //simple sentinel for find EOF
+	//Check if the argumets are omogeneous
+	if (f == NULL || word == NULL || def == NULL)
+		return -1; //bad
+
+	fscanf(f, "%s", word); //read the line
+	removeChar(word, '\"', ':');
+
+	fscanf(f, "%[^\"]s", def); //read the line
+	removeChar(def, '[', ']'); //remove [] character
+	removeChar(def, '\n', '\ ');
+	removeChar(def, '\r', '\r');
+	//detect the EOF
+	if (rchar = getc(f) == EOF)
+		*endFile = true;
+
+	return 0; //ok
+
+}
+
+void removeChar(char* str, char garbage, char garbage2) {
+	char *src, *dst; //to strings pointer
+	for (src = dst = str; *src != '\0'; src++) {
+		*dst = *src; //copy char form src to dst
+		if (*dst != garbage && *dst != garbage2) dst++; //not find garbage character
+	}
+	*dst = '\0'; //ad end string
+}
+
+void rb_delete(NODO** root, NODO* z) {
+	NODO* y = z;
+	NODO* x;
+	bool original = y->isBlack;
+	if (z->left == sentinel) {
+		x = z->right;
+		rb_trasplant(root, z, z->right);
+	}
+	else if (z->right == sentinel) {
+		x = z->left;
+		rb_trasplant(root, z, z->left);
+	}
+	else {
+		y = treeMinimum(z->right);
+		original = y->isBlack;
+		x = y->right;
+		if (y->parent == z)
+			x->parent = y;
+		else {
+			rb_trasplant(root, y, y->right);
+			y->right = z->right;
+			y->right->parent = y;
+		}
+		rb_trasplant(root, z, y);
+		y->left = z->left;
+		y->left->parent = y;
+		y->isBlack = z->isBlack;
+	}
+	if (original == true)
+		rb_deleteFixUp(root, x);
+
+	free(z);
+}
+
+NODO* treeSuccessor(NODO* root, NODO* x) {
+	if (x->right != sentinel)
+		return treeMinimum(x->right);
+
+	NODO* y = x->parent;
+	while (y != NULL && x == y->right) {
+		x = y;
+		y = y->parent;
+	}
+	return y;
+}
+
+void rb_trasplant(NODO** root, NODO* u, NODO* v) {
+
+	if (u->parent == sentinel)
+		*root = v;
+	else if (u == u->parent->left)
+		u->parent->left = v;
+	else {
+		u->parent->right = v;
+	}
+
+	v->parent = u->parent;
+}
+
+void rb_deleteFixUp(NODO** root, NODO * x) {
+
+	NODO* w = NULL;
+
+	while (*root != x && x->isBlack == true) {
+
+		if (x == x->parent->left) {
+			w = x->parent->right;
+			if (w->isBlack == false) {
+				w->isBlack = true;
+				x->parent->isBlack = false;
+				leftRotate(root, x->parent);
+				w = x->parent->right;
+			}
+			if ((w->left->isBlack == true) && (w->right->isBlack == true)) {
+				w->isBlack = false;
+				x = x->parent;
+			}
+			else {
+				if (w->right->isBlack == true) {
+					w->left->isBlack = true;
+					w->isBlack = false;
+					rightRotate(root, w);
+					w = x->parent->right;
+				}
+				w->isBlack = x->parent->isBlack;
+				x->parent->isBlack = true;
+				w->right->isBlack = true;
+				leftRotate(root, x->parent);
+				x = *root;
+			}
+		}
+		else {
+			w = x->parent->left;
+			if (w->isBlack == false) {
+				w->isBlack = true;
+				x->parent->isBlack = false;
+				rightRotate(root, x->parent);
+				w = x->parent->left;
+			}
+			if ((w->right->isBlack == true) && (w->left->isBlack == true)) {
+				w->isBlack = false;
+				x = x->parent;
+			}
+			else {
+				if (w->left->isBlack == true) {
+					w->right->isBlack = true;
+					w->isBlack = false;
+					leftRotate(root, w);
+					w = x->parent->left;
+				}
+				w->isBlack = x->parent->isBlack;
+				x->parent->isBlack = true;
+				w->left->isBlack = true;
+				rightRotate(root, x->parent);
+				x = *root;
+			}
+		}
+
+	}
+	x->isBlack = true;
+}
+
+NODO* treeMinimum(NODO* x) {
+
+	while (x->left != sentinel)
+		x = x->left;
+
+	return x;
+}
+
+int createSentinel() {
+	//Create node
+	sentinel = (NODO*)malloc(sizeof(NODO));
+	//Check for a safe malloc
+	if (sentinel == NULL)
+		return -1; //Bad malloc
+
+	//Update record for sentinel
+	sentinel->isBlack = true;
+	sentinel->parent = NULL;
+	sentinel->left = NULL;
+	sentinel->right = NULL;
+	sentinel->word = NULL;
+	sentinel->def = NULL;
+
+	return 0; //Ok
+}
+
+/*
+*RETURN 0: n2 is grater than n1
+*RETURN 1: n1 is grater than n2
+*RETURN 2: n1 is n2
+*RETURN 3: n1-> NULL or n2-> NULL
+*/
+unsigned short alphabeticalOrder(char* n1, char* n2) {
+
+	if (n1 == NULL || n2 == NULL)
+		return 3;
+	//Check character 
+	for (int i = 0; i < MAX_WORD; i++) {
+		if (n1[i] < n2[i])
+			return 0;
+		else if (n1[i] > n2[i])
+			return 1;
+	}
+
+	return 2;
+}
+
+NODO* searchWord(NODO* root, char* word) {
+
+	if (root == NULL || alphabeticalOrder(root->word, word) == 2)
+		return root;
+
+	switch (alphabeticalOrder(root->word, word)) {
+	case 0:
+		return searchWord(root->right, word);
+		break;
+	case 1:
+		return searchWord(root->left, word);
+		break;
+	}
+
+	//Here there is an error
+	return NULL;
+
+}
+
+void leftRotate(NODO** root, NODO* x)
+{
+	NODO* T = *root;
+	NODO* y = x->right; //Create new NODO and assign to x.right
+	x->right = y->left; //Move left sub-tree (y) on the x sub-tree
+
+	if (y->left != sentinel) y->left->parent = x;
+
+	y->parent = x->parent; //Connect parent of x to y
+
+	if (x->parent == sentinel)
+		*root = y;
+	else if (x == x->parent->left)
+		x->parent->left = y;
+
+	else x->parent->right = y;
+
+	y->left = x; //Move x on the left of y
+	x->parent = y;
+}
+
+void rightRotate(NODO** root, NODO* y)
+{
+	NODO* T = *root;
+	NODO* x = y->left; //Create new NODO and assign to x.right
+	y->left = x->right; //Move left sub-tree (y) on the x sub-tree
+
+	if (x->right != sentinel) x->right->parent = y;
+
+	x->parent = y->parent; //Connect parent of x to y
+
+	if (y->parent == sentinel)
+		*root = x;
+	else if (y == y->parent->right)
+		y->parent->right = x;
+
+	else y->parent->left = x;
+
+	x->right = y; //Move x on the left of y
+	y->parent = x;
+}
+
+void insertFixUp(NODO** root, NODO** node) {
+	NODO* T = *root;
+	NODO* z = *node; //Puntatore temporaneo al nodo
+	NODO* y = NULL;
+
+	while (z->parent != NULL && z->parent->isBlack == false)	{
+		if (z->parent == z->parent->parent->left) {
+			y = z->parent->parent->left;
+			if (y->isBlack == false) {
+				z->parent->isBlack = true;
+				y->isBlack = true;
+				z->parent->parent->isBlack = false;
+				z = z->parent->parent;
+			}
+			else {
+				if (z == z->parent->right) {
+					z = z->parent;
+					leftRotate(root, z);
+				}
+				z->parent->isBlack = true;
+				z->parent->parent->isBlack = false;
+				rightRotate(root, z->parent->parent);
+			}
+		}
+		else {
+			y = z->parent->parent->left;
+			if (y->isBlack == false) {
+				z->parent->isBlack = true;
+				y->isBlack = true;
+				z->parent->parent->isBlack = false;
+				z = z->parent->parent;
+			}
+			else {
+				if (z == z->parent->left) {
+					z = z->parent;
+					rightRotate(root, z);
+				}
+				z->parent->isBlack = true;
+				z->parent->parent->isBlack = false;
+				leftRotate(root, z->parent->parent);
+			}
+		}
+	}
+
+	T->isBlack = true;
+}
+
+void insertRBT(NODO** root, NODO* node) {
+	NODO* y = NULL;
+	NODO* x = NULL;
+	NODO* T = *root;
+
+	y = sentinel;
+	x = *root;
+
+	while (x != sentinel && x != NULL) {
+		y = x;
+		switch (alphabeticalOrder(node->word, x->word))	{
+		case 0:
+			x = x->left;
+			break;
+		case 1:
+			x = x->right;
+			break;
+		case 2:
+			return;
+		default:
+			break;
+		}
+	}
+
+	node->parent = y;
+	if (y == sentinel)
+		*root = node;
+	else {
+		switch (alphabeticalOrder(node->word, y->word))	{
+		case 0:
+			y->left = node;
+			break;
+		case 1:
+			y->right = node;
+			break;
+		case 2:
+			return;
+		default:
+			break;
+		}
+	}
+	node->left = sentinel;
+	node->right = sentinel;
+	node->isBlack = false;
+	insertFixUp(root, &node);
 }

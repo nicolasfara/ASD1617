@@ -12,7 +12,7 @@ int main(void) {
 	srand((unsigned int)time(NULL));
 	
 	NODO* dictionary = createFromFile("fileTest1617.txt");
-	
+
 	printf("\nSTAMPA DEL DIZIONARIO:\n");
 	printDictionary(dictionary);
 
@@ -62,7 +62,7 @@ int main(void) {
 		exit(1);
 	strcpy(word, "algoritmo");
 	printf("Search Advance: %d\t%s\t%s\t%s\n\n", searchAdvance(dictionary, word, &first, &second, &third), first, second, third);
-	
+
 	system("PAUSE");
 	return (0);
 }
