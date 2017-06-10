@@ -13,4 +13,8 @@
 \contentsline {subsection}{\numberline {3.2}RBT e BST a confronto}{5}
 \contentsline {subsection}{\numberline {3.3}Stime costi computazionali: algoritmi a confronti}{5}
 \contentsline {section}{\numberline {4}Costi computazionali funzioni implementate}{6}
-\contentsline {subsection}{\numberline {4.1}Funzioni \texttt {Nicolas Farabegoli}}{6}
+\contentsline {subsection}{\numberline {4.1}Funzioni implementate da \texttt {Nicolas Farabegoli}}{6}
+\contentsline {subsection}{\numberline {4.2}Funzioni implementate da \texttt {Paolo Baldini}}{7}
+\contentsline {section}{\numberline {5}Riflessioni e considerazioni sul progetto}{8}
+\contentsline {subsection}{\numberline {5.1}Difficolt\IeC {\`a} incontrate}{8}
+\contentsline {subsection}{\numberline {5.2}Considerazioni finali}{8}
