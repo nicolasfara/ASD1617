@@ -170,7 +170,7 @@ int insertDef(NODO * dictionary, char * word, char * def)
 		return 1; //Word not found
 
 	sWord->def = (NODO*)malloc(sizeof(char) * MAX_DEF);
-	if (sWord == NULL)
+	if (sWord->def == NULL)
 		return 1;
 	strncpy(sWord->def, def, MAX_DEF); //Copy the definition with safe string copy
 	return 0; //All ok
@@ -550,6 +550,8 @@ int decompress_file(FILE *input, NODO **dict_root, HNode *tree) {
 					}
 					if (string == nodo_pointer->word) {
 						string = (char *)malloc(sizeof(char) * 50);
+						if (string == NULL)
+							return -1;
 						nodo_pointer->def = string;
 					}
 					else {
@@ -558,6 +560,8 @@ int decompress_file(FILE *input, NODO **dict_root, HNode *tree) {
 						if (nodo_pointer == NULL)
 							return -1;
 						string = (char *)malloc(sizeof(char) * 20);
+						if (string == NULL)
+							return -1;
 						nodo_pointer->word = string;
 					}
 					if (string == NULL)
