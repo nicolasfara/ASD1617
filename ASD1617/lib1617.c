@@ -147,10 +147,11 @@ int insertWord(NODO ** dictionary, char * word) {
 
 int cancWord(NODO ** dictionary, char * word)
 {
+	//search node
 	NODO* sWord = searchWord(*dictionary, word);
 	if (sWord == NULL)
 		return 1;
-
+	//delete node
 	rb_delete(dictionary, sWord);
 	return 0;
 }
@@ -705,14 +706,17 @@ void rb_delete(NODO** root, NODO* z) {
 	NODO* y = z;
 	NODO* x;
 	bool original = y->isBlack;
+	//controllo se il iglio destro è la sentinella
 	if (z->left == sentinel) {
 		x = z->right;
 		rb_trasplant(root, z, z->right);
 	}
+	//Controllo se il figlio sinsitro è sentinella
 	else if (z->right == sentinel) {
 		x = z->left;
 		rb_trasplant(root, z, z->left);
 	}
+	//entrambi i figli sono nodi
 	else {
 		y = treeMinimum(z->right);
 		original = y->isBlack;
@@ -737,41 +741,43 @@ void rb_delete(NODO** root, NODO* z) {
 
 NODO* treeSuccessor(NODO* root, NODO* x) {
 	if (x->right != sentinel)
-		return treeMinimum(x->right);
+		return treeMinimum(x->right); //ritono il minimo
 
 	NODO* y = x->parent;
+	//Scorro fino a che non trovo il successore
 	while (y != NULL && x == y->right) {
 		x = y;
 		y = y->parent;
 	}
-	return y;
+	return y; //successore
 }
 
 void rb_trasplant(NODO** root, NODO* u, NODO* v) {
-
+	//Sono nella radice
 	if (u->parent == sentinel)
 		*root = v;
+	//figlio sinistro
 	else if (u == u->parent->left)
 		u->parent->left = v;
-	else {
+	else { //figlio destro
 		u->parent->right = v;
 	}
 
-	v->parent = u->parent;
+	v->parent = u->parent; //aggiorno puntatori
 }
 
 void rb_deleteFixUp(NODO** root, NODO * x) {
 
 	NODO* w = NULL;
-
+	//Scorro
 	while (*root != x && x->isBlack == true) {
-
+		//è a sinistra
 		if (x == x->parent->left) {
 			w = x->parent->right;
 			if (w->isBlack == false) {
 				w->isBlack = true;
 				x->parent->isBlack = false;
-				leftRotate(root, x->parent);
+				leftRotate(root, x->parent); //rotazione
 				w = x->parent->right;
 			}
 			if ((w->left->isBlack == true) && (w->right->isBlack == true)) {
@@ -782,17 +788,17 @@ void rb_deleteFixUp(NODO** root, NODO * x) {
 				if (w->right->isBlack == true) {
 					w->left->isBlack = true;
 					w->isBlack = false;
-					rightRotate(root, w);
-					w = x->parent->right;
+					rightRotate(root, w); //rotazione destra
+					w = x->parent->right; //nodo di sinistra
 				}
 				w->isBlack = x->parent->isBlack;
 				x->parent->isBlack = true;
 				w->right->isBlack = true;
 				leftRotate(root, x->parent);
-				x = *root;
+				x = *root; //assegno la radice
 			}
 		}
-		else {
+		else { //è a destra
 			w = x->parent->left;
 			if (w->isBlack == false) {
 				w->isBlack = true;
@@ -802,29 +808,29 @@ void rb_deleteFixUp(NODO** root, NODO * x) {
 			}
 			if ((w->right->isBlack == true) && (w->left->isBlack == true)) {
 				w->isBlack = false;
-				x = x->parent;
+				x = x->parent; //aggiorno al padre
 			}
 			else {
 				if (w->left->isBlack == true) {
 					w->right->isBlack = true;
 					w->isBlack = false;
-					leftRotate(root, w);
+					leftRotate(root, w); //rotazione sinistra
 					w = x->parent->left;
 				}
 				w->isBlack = x->parent->isBlack;
 				x->parent->isBlack = true;
 				w->left->isBlack = true;
-				rightRotate(root, x->parent);
-				x = *root;
+				rightRotate(root, x->parent); //rotazione destra
+				x = *root; // assegno radice
 			}
 		}
 
 	}
-	x->isBlack = true;
+	x->isBlack = true; //sistemo colore
 }
 
 NODO* treeMinimum(NODO* x) {
-
+	//Scorro fino al minimo
 	while (x->left != sentinel)
 		x = x->left;
 
@@ -871,15 +877,15 @@ unsigned short alphabeticalOrder(char* n1, char* n2) {
 }
 
 NODO* searchWord(NODO* root, char* word) {
-
+	//caso base
 	if (root == NULL || alphabeticalOrder(root->word, word) == 2)
 		return root;
 
 	switch (alphabeticalOrder(root->word, word)) {
-	case 0:
+	case 0: //Peso Maggiore
 		return searchWord(root->right, word);
 		break;
-	case 1:
+	case 1: //peso minore
 		return searchWord(root->left, word);
 		break;
 	}
@@ -935,8 +941,9 @@ void insertFixUp(NODO** root, NODO** node) {
 	NODO* T = *root;
 	NODO* z = *node; //Puntatore temporaneo al nodo
 	NODO* y = NULL;
-
-	while (z->parent != NULL && z->parent->isBlack == false)	{
+	//Ciclo
+	while (z->parent != NULL && z->parent->isBlack == false) {
+		//Nodo di sinsitra
 		if (z->parent == z->parent->parent->left) {
 			y = z->parent->parent->left;
 			if (y->isBlack == false) {
@@ -948,14 +955,14 @@ void insertFixUp(NODO** root, NODO** node) {
 			else {
 				if (z == z->parent->right) {
 					z = z->parent;
-					leftRotate(root, z);
+					leftRotate(root, z); //rotazione sinistra
 				}
 				z->parent->isBlack = true;
 				z->parent->parent->isBlack = false;
 				rightRotate(root, z->parent->parent);
 			}
 		}
-		else {
+		else { //nodo di destra
 			y = z->parent->parent->left;
 			if (y->isBlack == false) {
 				z->parent->isBlack = true;
@@ -966,7 +973,7 @@ void insertFixUp(NODO** root, NODO** node) {
 			else {
 				if (z == z->parent->left) {
 					z = z->parent;
-					rightRotate(root, z);
+					rightRotate(root, z); //rotazione destra
 				}
 				z->parent->isBlack = true;
 				z->parent->parent->isBlack = false;
@@ -985,14 +992,14 @@ void insertRBT(NODO** root, NODO* node) {
 
 	y = sentinel;
 	x = *root;
-
+	//Scorro fino a che non sono finiti i nodi
 	while (x != sentinel && x != NULL) {
 		y = x;
 		switch (alphabeticalOrder(node->word, x->word))	{
-		case 0:
+		case 0: //Caso maggiore
 			x = x->left;
 			break;
-		case 1:
+		case 1: //caso minore
 			x = x->right;
 			break;
 		case 2:
