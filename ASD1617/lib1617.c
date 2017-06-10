@@ -698,7 +698,7 @@ NODO *importDictionary(char * fileInput) {
 		if (node->word == NULL || node->def == NULL)
 			return NULL;
 		//check if the def is null
-		if (!strncmp(def, "(null)\r", MAX_DEF))
+		if (!strncmp(def, "(null)", MAX_DEF))
 			node->def = NULL;
 		else 
 			strncpy(node->def, def, MAX_DEF);
