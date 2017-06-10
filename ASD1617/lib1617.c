@@ -27,7 +27,7 @@ char *find_index_word(NODO *, int, int *);
 int decompress_file(FILE *, NODO **, HNode *);
 int search_in_node(NODO *, MSWNode *, char *);
 int levenshtein(const char *, int, const char *, int);
-void convert_accent(char *, int);
+unsigned char convert_accent(unsigned char);
 
 //FUNZIONI - IN WORKING
 
@@ -227,7 +227,7 @@ void insertRBT(NODO** root, NODO* node) {
 NODO *createFromFile(char * nameFile)
 {
 	unsigned short i = 0;
-	char tmp;
+	unsigned char tmp;
 	NODO* root = NULL;
 	NODO* node = NULL;
 	FILE* f = NULL;
@@ -258,6 +258,7 @@ NODO *createFromFile(char * nameFile)
 
 		tmp = getc(f);
 		//Controllo che il carattere letto sia una lettera (anche accentata)
+<<<<<<< HEAD
 		for (i = 0; ((tmp >= 65 && tmp <= 90) || (tmp >= 97 && tmp <= 122) || (tmp >= 128 && tmp <= 165)); i++) {
 			switch (tmp)
 			{
@@ -265,6 +266,13 @@ NODO *createFromFile(char * nameFile)
 				break;
 			}
 			tmp = tolower(tmp);					
+=======
+		for (i = 0; ((tmp >= 65 && tmp <= 90) || (tmp >= 97 && tmp <= 122) || (tmp >= 192 && tmp <= 252)); i++) {
+			if (tmp >= 192 && tmp <= 252)
+				tmp = convert_accent(tmp);
+			else
+				tmp = tolower(tmp);					
+>>>>>>> efa85f50bfa8a643166402e3ee7ac10063f8c08c
 			node->word[i] = tmp;
 			tmp = getc(f);
 		}
@@ -274,12 +282,10 @@ NODO *createFromFile(char * nameFile)
 			free(node); //Release node
 		}
 		else {
-			//convert_accent(node->word, MAX_WORD);
 			insertRBT(&root, node); //Insert node in RBT
-			//printDictionary(root);
 		}
 		//Check if the file pointer is at the end
-		if (tmp == EOF)
+		if (tmp == 0xff)
 			break; //exit from the loop (infinity)
 	}
 
@@ -1095,39 +1101,29 @@ int levenshtein(const char *s, int ls, const char *t, int lt) {
 	return a + 1;
 }
 
-void convert_accent(char *string, int dim) {
-	register int k;
-	for (register int i = 0; string[i] != '\0' && i < dim; i++) {
-		if (string[i] >= 128 && string[i] <= 165) {
-			if (strlen(string) == dim - 1) {
-				string[i] = 'a';
-				return;
-			}
-			for (k = dim - 1; k > i; k--)
-				string[k] = string[k - 1];
-			string[k] = 96;
-			k--;
-			if (string[k] == 128 || string[k] == 135)
-				string[k] = 'c';
-			if (string[k] == 129 || (string[k] >= 150 && string[k] <= 152) || string[k] == 154 || string[k] == 163)
-				string[k] = 'u';
-			if (string[k] == 130 || (string[k] >= 136 && string[k] <= 138) || string[k] == 144 || string[k] == 156)
-				string[k] = 'e';
-			if ((string[k] >= 131 && string[k] <= 134) || string[k] == 142 || string[k] == 143 || string[k] == 145 || string[k] == 146 || string[k] == 160)
-				string[k] = 'a';
-			if (string[k] >= 139 && string[k] <= 141 || string[k] == 161)
-				string[k] = 'i';
-			if ((string[k] >= 147 && string[k] <= 149) || string[k] == 153 || string[k] == 155 || string[k] == 157 || string[k] == 162)
-				string[k] = 'o';
-			if (string[k] == 158)
-				string[k] = 'x';
-			if (string[k] == 159)
-				string[k] = 'f';
-			if (string[k] == 164 || string[k] == 165)
-				string[k] = 'n';
-		}
-	}
-	return;
+unsigned char convert_accent(unsigned char c) {
+	if ((c >= 192 && c <= 198) || (c >= 224 && c <= 230))
+		return 'a';
+	if ((c >= 200 && c <= 203) || (c >= 232 && c <= 235))
+		return 'e';
+	if ((c >= 204 && c <= 207) || (c >= 236 && c <= 239))
+		return 'i';
+	if ((c >= 210 && c <= 214) || c == 216 || c == 240 || (c >= 242 && c <= 248))
+		return 'o';
+	if ((c >= 217 && c <= 220) || (c >= 249 && c <= 252))
+		return 'u';
+	if (c == 223)
+		return 'b';
+	if (c == 199 || c == 231)
+		return 'c';
+	if (c == 208)
+		return 'd';
+	if (c == 209 || c == 241)
+		return 'n';
+	if (c == 222)
+		return 'p';
+	if (c == 215)
+		return 'x';
+	if (c == 221)
+		return 'y';
 }
-
-
