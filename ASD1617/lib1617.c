@@ -259,8 +259,12 @@ NODO *createFromFile(char * nameFile)
 		tmp = getc(f);
 		//Controllo che il carattere letto sia una lettera (anche accentata)
 		for (i = 0; ((tmp >= 65 && tmp <= 90) || (tmp >= 97 && tmp <= 122) || (tmp >= 128 && tmp <= 165)); i++) {
-			//if (tmp < 128 || tmp > 165)
-				tmp = tolower(tmp);					
+			switch (tmp)
+			{
+			case :
+				break;
+			}
+			tmp = tolower(tmp);					
 			node->word[i] = tmp;
 			tmp = getc(f);
 		}
