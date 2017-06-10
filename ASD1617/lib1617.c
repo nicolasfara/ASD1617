@@ -338,9 +338,10 @@ void rb_trasplant(NODO** root, NODO* u, NODO* v) {
 	else if (u == u->parent->left)
 		u->parent->left = v;
 	else {
-		u->parent->right = v;
-		v->parent = u->parent;
+		u->parent->right = v;		
 	}
+	
+	v->parent = u->parent;
 }
 
 void rb_deleteFixUp(NODO** root, NODO * x) {
@@ -427,6 +428,40 @@ NODO* treeSuccessor(NODO* root, NODO* x) {
 }
 
 void rb_delete(NODO** root, NODO* z) {
+	NODO* y = z;
+	NODO* x;
+	bool original = y->isBlack;
+	if (z->left == sentinel) {
+		x = z->right;
+		rb_trasplant(root, z, z->right);
+	}
+	else if (z->right == sentinel) {
+		x = z->left;
+		rb_trasplant(root, z, z->left);
+	}
+	else {
+		y = treeMinimum(z->right);
+		original = y->isBlack;
+		x = y->right;
+		if (y->parent == z)
+			x->parent = y;
+		else {
+			rb_trasplant(root, y, y->right);
+			y->right = z->right;
+			y->right->parent = y;
+		}
+		rb_trasplant(root, z, y);
+		y->left = z->left;
+		y->left->parent = y;
+		y->isBlack = z->isBlack;
+	}
+	if (original == true)
+		rb_deleteFixUp(root, x);
+
+	free(z);
+}
+
+/*void rb_delete(NODO** root, NODO* z) {
 	
 	NODO* y = NULL;
 	NODO* x = NULL;
@@ -461,7 +496,7 @@ void rb_delete(NODO** root, NODO* z) {
 		if (y->isBlack == true) rb_deleteFixUp(&_root, x);
 		free(y);
 	}
-}
+}*/
 
 int cancWord(NODO ** dictionary, char * word)
 {

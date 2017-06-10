@@ -27,7 +27,7 @@ int main(void) {
 	printDictionary(dictionary);
 	printf("\nNumero di parole salvate nel dizionario : %d\n\n", countWord(dictionary));
 
-	cancWord(&dictionary, getWordAt(dictionary, 5));
+	cancWord(&dictionary, getWordAt(dictionary, 21));
 	cancWord(&dictionary, getWordAt(dictionary, 1));
 	cancWord(&dictionary, getWordAt(dictionary, 0));
 	printf("\nSTAMPA DEL DIZIONARIO dopo 3 cancellazioni:\n");
@@ -57,7 +57,10 @@ int main(void) {
 	printf("\nNumero di parole salvate nel dizionario : %d\n\n", countWord(dictionary));
 	char *first = NULL, *second = NULL, *third= NULL, *word = NULL;
 	printf("%d\n", searchAdvance(dictionary, word, &first, &second, &third));
-	strcmp(word, "algoritmo");
+	word = (char*)malloc(sizeof(char) * MAX_WORD);
+	if (word == NULL)
+		exit(1);
+	strcpy(word, "algoritmo");
 	printf("%d %s %s %s\n", searchAdvance(dictionary, word, &first, &second, &third), first, second, third);
 	
 	system("PAUSE");
