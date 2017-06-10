@@ -47,21 +47,21 @@ int main(void) {
 	printf("\nRicerca Parola \"%s\" -> definizione : [%s]\n\n", stringTemp, searchDef(dictionary, stringTemp));
 	saveDictionary(dictionary, "od.txt");
 	dictionary = importDictionary("od.txt");
+	puts("IMPORT DICTIONARY\n");
 	printDictionary(dictionary);
 
 	compressHuffman(dictionary, "text.txt");
-	dictionary = NULL;
-	printf("\n\n\nHUFFF\n\n\n");
+	printf("\n\nHUFFMAN\n\n");
 	decompressHuffman("text.txt", &dictionary);
 	printDictionary(dictionary);
 	printf("\nNumero di parole salvate nel dizionario : %d\n\n", countWord(dictionary));
 	char *first = NULL, *second = NULL, *third= NULL, *word = NULL;
-	printf("%d\n", searchAdvance(dictionary, word, &first, &second, &third));
+	printf("Search Advance: %d\t%s\t%s\t\t%s\n", searchAdvance(dictionary, word, &first, &second, &third), first, second, third);
 	word = (char*)malloc(sizeof(char) * MAX_WORD);
 	if (word == NULL)
 		exit(1);
 	strcpy(word, "algoritmo");
-	printf("%d %s %s %s\n", searchAdvance(dictionary, word, &first, &second, &third), first, second, third);
+	printf("Search Advance: %d\t%s\t%s\t%s\n\n", searchAdvance(dictionary, word, &first, &second, &third), first, second, third);
 	
 	system("PAUSE");
 	return (0);

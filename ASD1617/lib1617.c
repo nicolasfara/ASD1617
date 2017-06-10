@@ -28,6 +28,7 @@ int decompress_file(FILE *, NODO **, HNode *);
 int search_in_node(NODO *, MSWNode *, char *);
 int levenshtein(const char *, int, const char *, int);
 unsigned char convert_accent(unsigned char);
+int empties_dictionary(NODO **);
 
 //FUNZIONI - IN WORKING
 
@@ -658,7 +659,7 @@ int compressHuffman(NODO * dictionary, char * file_name) {
 	unsigned int code_table[ELEMENTS];
 	FILE *output_file = fopen(file_name, "wb");
 	HNode *root = build_huffman_tree();
-	if (root == NULL)
+	if (dictionary == NULL || root == NULL)
 		return -1;
 	fill_table(code_table, root, 0);
 	compress_node(dictionary, output_file, code_table);
@@ -672,14 +673,27 @@ int decompressHuffman(char * file_name, NODO ** dictionary) {
 	int x = 0;
 	FILE *input_file = fopen(file_name, "rb");
 	HNode *root = build_huffman_tree();
+	empties_dictionary(dictionary);
 	if (sentinel == NULL)
 		x = createSentinel();
+	(*dictionary) = sentinel;
 	if (root == NULL || input_file == NULL || x == -1)
 		return -1;
 	x = decompress_file(input_file, dictionary, root);
 	fclose(input_file);
 
 	return x;
+}
+
+int empties_dictionary(NODO **dictionary) {
+	if ((*dictionary) == sentinel || (*dictionary) == NULL)
+		return 0;
+	NODO *l = (*dictionary)->left;
+	NODO *r = (*dictionary)->right;
+	free((*dictionary));
+	empties_dictionary(&l);
+	empties_dictionary(&r);
+	return 0;
 }
 
 //FUNZIONI AUSILIARIE - COMPLETE
