@@ -6,9 +6,17 @@
 
 \usepackage[a4paper,pdftex]{geometry}   % A4paper margins
 \usepackage[utf8]{inputenc}
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric,arrows,fit,matrix,positioning}
+\tikzset
+{
+	treenode/.style = {circle, draw=black, align=center, minimum size=1cm},
+	subtree/.style  = {isosceles triangle, draw=black, align=center, minimum height=0.5cm, minimum width=1cm, shape border rotate=90, anchor=north}
+}
 
 \setlength{\oddsidemargin}{5mm}         % Remove 'twosided' indentation
 \setlength{\evensidemargin}{5mm}
+\setlength{\parskip}{1mm}
 
 \usepackage[italian]{babel}
 \usepackage[protrusion=true,expansion=true]{microtype}  
@@ -69,7 +77,7 @@
 	% ------------------------------------------------------------------------------
 	\setcounter{page}{1}        % Set page numbering to begin on this page
 	
-	\section{Analisi}
+	\section{Requisiti progetto}
 		L'obiettivo del progetto è quello di costruire e gestire un vocabolario 
 		contenente le voci, ordinate, e le corrispondenti definizioni. 
 		Il dizionario può essere inizialmente generato a partire da un file di testo.  
@@ -88,16 +96,15 @@
 			\subsection{Vincoli}
 				Nel dizionario non devono essere inserite le parole di un solo carattere o con più di 10 caratteri. Inoltre non devono essere inserite parole che differiscono solo per caratteri minuscoli/minuscoli. Le parole e le definizioni inserite nel dizionario non devono presentare caratteri maiuscoli; nel caso di inserimento di una parola con un carattere, o più, maiuscoli, convertirli per inserirli nel modo corretto. 
 				
-				Si assume che nel file di testo e nel dizionario non sono presenti nomi proprio (di persona) e le voci nel dizionario possono ammettere caratteri accentati (è, à, etc...), ma non ammettono cifre e caratteri di punteggiatura.
+				Si assume che nel file di testo e nel dizionario non sono presenti nomi propri (di persona) e le voci nel dizionario possono ammettere caratteri accentati (è, à, etc...), ma non ammettono cifre e caratteri di punteggiatura.
 			
 			\subsection{Funzionalità richieste}
-				Sono presenti metodi di gestione del dizionario come il conteggio delle voci del dizionario, l'inserimento o la cancellazione di un nuovo vocabolo, ...
-				
+				Sono presenti metodi di gestione del dizionario come il conteggio delle voci del dizionario, l'inserimento o la cancellazione di un nuovo vocabolo, ...				
 				Esistono due diverse funzioni di ricerca:
 				\begin{itemize}
 					\item la prima, di base, dato un termine restituisce, se presente, la sua definizione
 					\item la seconda è una funzione di searchAdvance che verifica la presenza della parola da cercare e restituisce la tre parole più simile a quella che si vuole cercare. Per similarità si intende il minor numero di modifiche (sostituzioni, inserimenti) per trasformare una parola nell'altra.
-				\end{itemize} \newpage			
+				\end{itemize} \pagebreak
 				 Le specifiche della ricerca avanzata, e l'algoritmo da utilizzare, sono a scelta dello studente. Inoltre si vuole avere la possibilità di caricare e salvare il dizionario, a partire dalla struttura dati ottenuta, con il seguente formato, in un file testuale (\textbf{.txt}):
 				 \begin{trivlist}
 				 	\item \texttt{"che": [(null)]}
@@ -137,8 +144,79 @@
 			 	I test del software in ambiente Windows sono stati effettuati su Windows 10 Pro, invece i test in ambiente linux sono stati effettuati utilizzando Arch Linux, Kernel 4.11.3-1 e GCC 7.1.1.
 			 \subsection{Deadline}
 			 	Il progetto viene terminato per il primo appello di Giugno, si stima quindi come data di consegna del progetto (in accordo con le scadenze imposte dal docente) il \today.
+			 	
+		\section{Analisi del progetto}
+			\subsection{Scelta struttura dati}
+				 A seguito delle specifiche del progetto ci è stato richiesto di effettuare un attenta analisi sulla struttura dati da utilizzare per realizzare il dizionario. In un primo momento si era pensato di adottare come struttura dati una tabella Hash; questa però è risultata sin da subito non efficiente all'implementazione di un dizionario: come prima cosa avremo dovuto creare una funzione Hash ad hoc estremamente efficiente e che gestisse le \textit{collision} in maniera intelligente, non ci è sembrata una struttura dati adatta al contesto del progetto proprio per il fatto che le tabelle Hash generano collision. Una possibile soluzione pensata per gestire le collision era quella di creare una lista in corrispondenza di una collision. Un'approfondita analisi circa il problema delle collision ci ha portati a riflettere sui costi computazionali: gestendo le collision con una lista, il \textit{worst case} sia dell'inserimento che della ricerca nel dizionario, avrebbero avuto un costo pari a $\Theta(n)$.
+				 
+				 Questo lo si può facilmente intuire dal fatto che: supponendo di avere una funzione Hash che crei un numero di collision molto grande in un unico punto, troveremo la lista corrispondente a quel punto con lunghezza (in termini di ordini di grandezza) pari a $n$. Quindi sia l'inserimento (in ordine lessicografico) che la ricerca, hanno come costo computazionale pari a $\Theta(n)$.\\\\
+				 Ci siamo quindi concentrati su strutture dati che abbiano costi computazionali al più lineari $\Theta(n)$. Ci siamo quindi orientati sugli alberi binari di ricerca (BST).				 
+				 Abbiamo quindi iniziato a stimare i costi computazionali per le funzioni di maggiore rilievo sulla struttura dati, come inserimento, cancellazione, ricerca e visita. Dalle nostre stime è emerso che: per \textit{inserimento}, \textit{cancellazione} e \textit{ricerca} il costo computazionale è $\Theta(log(n))$ (grazie alle proprietà che caratterizzano i BST), mentre per la \textit{visita} il costo è $\Theta(n)$.
+				 
+				 Un'ulteriore analisi sulla struttura dati ci ha condotti ad osservare che gli alberi binari di ricerca non erano ancora la soluzione ottimale per il problema: infatti i costi stimati in precedenza fanno riferimento al caso in cui l'albero binario sia bilanciato. Infatti se ciò non fosse, i costi che prima erano stimati a $\Theta(log(n))$, nel caso di un albero fortemente sbilanciato sono $\Theta(n)$. Ritornando alle problematiche precedentemente riscontrate con le tabelle Hash. Non potendo prevedere a posteriori il bilanciamento dell'albero e considerando sempre il caso peggiore, abbiamo appurato che i BST non sono ancora la struttura dati ottimale per implementare un dizionario.\\\\
+				 La chiave per ottenere una struttura dati che ci consenta di effettuare le principali operazione in tempo sub-lineare e al più lineare è quella di riuscire a bilanciare l'albero.
+				 Abbiamo quindi pensato ai Red-Black Tree (RBT), i quali ci garantiscono un buon bilanciamento dell'albero, con conseguente garanzia sui costi computazionali stimati nei casi peggiori. Infatti nel \textit{worst case} abbiamo 
+				 per \textit{inserimento}, \textit{cancellazione} e \textit{ricerca} un costo pari a $\Theta(log(n))$, mentre per la \textit{visita} rimane sempre $\Theta(n)$. La struttura dati utilizzata nel progetto è il \textbf{Red-Black Tree}.
+				 
+			\subsection{RBT e BST a confronto}
+				Come accennato alla sezione precedente, i BST sono fortemente inclini a sbilanciarsi, ciò causa un'alterazione nei costi computazionali a tal punto che l'ordine di grandezza si sposta da sub-lineare a lineare. Questo è un problema da tenere in considerazione quando si lavora con un numero di elementi molto elevato come può essere un dizionario.
+				Il problema del bilanciamento è praticamente risolto adottando i Red-Black Tree, poiché la politica di inserimento e cancellazione fa si che l'albero sia fortemente bilanciato, riuscendo, nel caso peggiore, ad avere un costo computazionale pari a $\Theta(2log(n))$.
+			
+			\subsection{Stime costi computazionali: algoritmi a confronti}				
+				\begin{table}[ht]	
+					\centering									
+					\begin{tabular}{l | l | l}
+						
+						Algorithm & Average case & Worst Case \\
+						\hline
+						Hash Table & $\Theta(xxx)$ & $\Theta(xxx)$ \\
+						\hline
+						BST & $\Theta(log(n))$ & $\Theta(n)$ \\
+						\hline
+						RBT & $\Theta(log(n))$ & $\Theta(2log(n))$ \\
+						\hline					
+					\end{tabular}
+					\caption{Inserimento nel dizionario} %\label{tab:sometab}
+				\end{table}	
+							
+				\begin{table}[ht]
+					\centering									
+					\begin{tabular}{l | l | l}
+						
+						Algorithm & Average case & Worst Case \\
+						\hline
+						Hash Table & $\Theta(xxx)$ & $\Theta(xxx)$ \\
+						\hline
+						BST & $\Theta(log(n))$ & $\Theta(n)$ \\
+						\hline
+						RBT & $\Theta(log(n))$ & $\Theta(2log(n))$ \\
+						\hline					
+					\end{tabular}
+					\caption{Cancellazione nel dizionario} %\label{tab:sometab}
+				\end{table}
+						
+				\begin{table}[ht]
+					\centering									
+					\begin{tabular}{l | l | l}
+						
+						Algorithm & Average case & Worst Case \\
+						\hline
+						Hash Table & $\Omega(n)$ & $\Theta(n)$ \\
+						\hline
+						BST & $\Theta(n)$ & $\Theta(n)$ \\
+						\hline
+						RBT & $\Theta(n)$ & $\Theta(n)$ \\
+						\hline					
+					\end{tabular}
+					\caption{Ricerca nel dizionario} %\label{tab:sometab}
+				\end{table}
+			 Come si evince dalle tabelle l'algoritmo che presenta il miglior costo computazionale è il \textbf{RBT}.
+			 \pagebreak
 			 
-			 
-			 
+		\section{Costi computazionali funzioni implementate}
+			\subsection{Funzioni \texttt{Nicolas Farabegoli}}
+				In questa sezione vengono analizzati i costi computazionali delle funzioni implementate da Nicolas Farabegoli in maniera più dettagliata (ove possibile).
+								
+				\texttt{insertWord(NODO** root, NODO* node)} - Il costo computazionale nel caso peggiore della funzione per l'inserimento di un nodo è piuttosto semplice da calcolare in quanto nel caso peggiore bisognerà arrivare alle foglie e quindi percorrere un numero di nodi pari all'altezza dell'albero.Come detto nei paragrafi precedenti, l'altezza di un albero nei RBT nel caso peggiore, è pari a $2log_2(n)$ dove $n$ sono il numero di nodi presenti nell'albero.\par
 		 
 \end{document}

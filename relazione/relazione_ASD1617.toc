@@ -1,6 +1,6 @@
 \select@language {italian}
 \select@language {italian}
-\contentsline {section}{\numberline {1}Analisi}{1}
+\contentsline {section}{\numberline {1}Requisiti progetto}{1}
 \contentsline {subsection}{\numberline {1.1}Vincoli}{1}
 \contentsline {subsection}{\numberline {1.2}Funzionalit\IeC {\`a} richieste}{1}
 \contentsline {section}{\numberline {2}Aspetti del progetto}{3}
@@ -8,3 +8,9 @@
 \contentsline {subsection}{\numberline {2.2}Suddivisione del lavoro}{3}
 \contentsline {subsection}{\numberline {2.3}Tools di sviluppo}{3}
 \contentsline {subsection}{\numberline {2.4}Deadline}{3}
+\contentsline {section}{\numberline {3}Analisi del progetto}{4}
+\contentsline {subsection}{\numberline {3.1}Scelta struttura dati}{4}
+\contentsline {subsection}{\numberline {3.2}RBT e BST a confronto}{5}
+\contentsline {subsection}{\numberline {3.3}Stime costi computazionali: algoritmi a confronti}{5}
+\contentsline {section}{\numberline {4}Costi computazionali funzioni implementate}{6}
+\contentsline {subsection}{\numberline {4.1}Funzioni \texttt {Nicolas Farabegoli}}{6}
