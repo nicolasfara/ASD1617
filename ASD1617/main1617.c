@@ -45,7 +45,7 @@ int main(void) {
 	printf("\nRicerca Parola \"%s\" -> definizione : [%s]\n\n", getWordAt(dictionary, 7), searchDef(dictionary, getWordAt(dictionary, 7)));
 	stringTemp = "eftd";
 	printf("\nRicerca Parola \"%s\" -> definizione : [%s]\n\n", stringTemp, searchDef(dictionary, stringTemp));
-	//saveDictionary(dictionary, "od.txt");
+	saveDictionary(dictionary, "od.txt");
 	dictionary = importDictionary("od.txt");
 	printDictionary(dictionary);
 

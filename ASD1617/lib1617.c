@@ -298,7 +298,7 @@ void printDictionaryFile(NODO * dictionary, FILE *f) {
 	if (dictionary != NULL && dictionary != sentinel) {
 		printDictionaryFile(dictionary->left, f);
 		fprintf(f, "\"%s\": ", dictionary->word);
-		fprintf(f, "[%s]\r\n", dictionary->def);
+		fprintf(f, "[%s]\n", dictionary->def);
 		printDictionaryFile(dictionary->right, f);
 	}
 }
@@ -657,6 +657,7 @@ short readWordDef(FILE* f, char* word, char* def, bool* endFile) {
 	fscanf(f, "%[^\"]s", def); //read the line
 	removeChar(def, '[', ']'); //remove [] character
 	removeChar(def, '\n', '\ ');
+	removeChar(def, '\r', '\r');
 	//detect the EOF
 	if (rchar = getc(f) == EOF)
 		*endFile = true;
