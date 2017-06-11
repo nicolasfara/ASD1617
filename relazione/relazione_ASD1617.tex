@@ -94,7 +94,7 @@
 		Ogni voce del dizionario contiene al massimo 20 caratteri, e minimo 2, e le definizioni inserite ne contengono al massimo 50.
 		
 			\subsection{Vincoli}
-				Nel dizionario non devono essere inserite le parole di un solo carattere o con più di 10 caratteri. Inoltre non devono essere inserite parole che differiscono solo per caratteri minuscoli/maiuscoli. Le parole e le definizioni inserite nel dizionario non devono presentare caratteri maiuscoli; nel caso di inserimento di una parola con un carattere, o più, maiuscoli, convertirli per inserirli nel modo corretto. 
+				Nel dizionario non devono essere inserite le parole di un solo carattere o con più di 20 caratteri. Inoltre non devono essere inserite parole che differiscono solo per caratteri minuscoli/maiuscoli. Le parole e le definizioni inserite nel dizionario non devono presentare caratteri maiuscoli; nel caso di inserimento di una parola con un carattere, o più, maiuscoli, convertirli per inserirli nel modo corretto. 
 				
 				Si assume che nel file di testo e nel dizionario non sono presenti nomi propri (di persona) e le voci nel dizionario possono ammettere caratteri accentati (è, à, etc...), ma non ammettono cifre e caratteri di punteggiatura.
 			
@@ -119,7 +119,7 @@
 			 	 \newpage
 		\section{Aspetti del progetto}
 			\subsection{Componenti del gruppo}
-				Il gruppo si compone di due persone: Paolo Baldini (\texttt{xxxxxxx}), Nicolas Farabegoli (\texttt{788928}).
+				Il gruppo si compone di due persone: Paolo Baldini (\texttt{801207}), Nicolas Farabegoli (\texttt{788928}).
 			\subsection{Suddivisione del lavoro}
 				Sono state assegnate 13 funzioni per lavorare sulla struttura dati; l'implementazione delle suddette funzioni è stata ripartita nel seguente modo:
 				\begin{itemize}
@@ -160,16 +160,14 @@
 				 
 			\subsection{RBT e BST a confronto}
 				Come accennato alla sezione precedente, i BST sono fortemente inclini a sbilanciarsi, ciò causa un'alterazione nei costi computazionali a tal punto che l'ordine di grandezza si sposta da sub-lineare a lineare. Questo è un problema da tenere in considerazione quando si lavora con un numero di elementi molto elevato come può essere un dizionario.
-				Il problema del bilanciamento è praticamente risolto adottando i Red-Black Tree, poiché la politica di inserimento e cancellazione fa si che l'albero sia fortemente bilanciato, riuscendo, nel caso peggiore, ad avere un costo computazionale pari a $\Theta(2log(n))$.
-			
+				Il problema del bilanciamento è praticamente risolto adottando i Red-Black Tree, poiché la politica di inserimento e cancellazione fa si che l'albero sia fortemente bilanciato, riuscendo, nel caso peggiore, ad avere un costo computazionale pari a $\Theta(2log(n))$.			
 			\subsection{Stime costi computazionali: algoritmi a confronto}				
 				\begin{table}[ht]	
 					\centering									
-					\begin{tabular}{l | l | l}
-						
+					\begin{tabular}{l | c | c}						
 						Algorithm & Average case & Worst Case \\
 						\hline
-						Hash Table & $\Theta(xxx)$ & $\Theta(xxx)$ \\
+						Hash Table & $\Theta(xxx)^*$ & $\Theta(xxx)^*$ \\
 						\hline
 						BST & $\Theta(log(n))$ & $\Theta(n)$ \\
 						\hline
@@ -178,10 +176,10 @@
 					\end{tabular}
 					\caption{Inserimento nel dizionario} %\label{tab:sometab}
 				\end{table}	
-							
+				\noindent(*) i costi computazionali relativi alla tabella hash sono fortemente influenzati dalla funzione hash realizzata.
 				\begin{table}[ht]
 					\centering									
-					\begin{tabular}{l | l | l}
+					\begin{tabular}{l | c | c}
 						
 						Algorithm & Average case & Worst Case \\
 						\hline
@@ -197,7 +195,7 @@
 						
 				\begin{table}[ht]
 					\centering									
-					\begin{tabular}{l | l | l}
+					\begin{tabular}{l | c | c}
 						
 						Algorithm & Average case & Worst Case \\
 						\hline
@@ -210,13 +208,11 @@
 					\end{tabular}
 					\caption{Ricerca nel dizionario} %\label{tab:sometab}
 				\end{table}
-			 Come si evince dalle tabelle l'algoritmo che presenta il miglior costo computazionale è il \textbf{RBT}.
+			 \noindent Come si evince dalle tabelle l'algoritmo che presenta il miglior costo computazionale è il \textbf{RBT}.
 			 \pagebreak
 			 
 		\section{Costi computazionali funzioni implementate}
 			\subsection{Funzioni implementate da \texttt{Nicolas Farabegoli}}
-				In questa sezione vengono analizzati i costi computazionali delle funzioni implementate da Nicolas Farabegoli in maniera più dettagliata (ove possibile).
-								
 				\texttt{insertWord(NODO** root, NODO* node)} - Il costo computazionale nel caso peggiore della funzione per l'inserimento di un nodo è piuttosto semplice da calcolare in quanto nel caso peggiore bisognerà arrivare alle foglie e quindi percorrere un numero di nodi pari all'altezza dell'albero. Come detto nei paragrafi precedenti, l'altezza di un albero nei RBT nel caso peggiore, è pari a $2log_2(n)$ dove $n$ sono il numero di nodi presenti nell'albero.\par
 				
 				\texttt{cancWord(NODO** dictionary, char* word)} - La funzione di cancellazione di una parola all'interno del dizionario effettua due chiamate ad altre due funzioni: \texttt{searchWord} per ricercare la parola da cancellare e \texttt{rb\_delete} per eliminare il nodo contenente la parola cercata. La funzione \texttt{searchWord} al suo interno effettua due chiamate ricorsive condizionate: una sul figlio di destra se la parola da cercare ha peso maggiore, oppure a sinistra se la parola ha peso minore. Possiamo quindi impostare un'equazione ricorsiva piuttosto semplice:				
@@ -248,9 +244,9 @@
 				
 				\texttt{searchAdvance(NODO* dictionary, char * word, char ** first, char ** second, char ** third)} - Questa funzione restituisce 0 nel caso trovi la parola cercata e -1 nel caso non la trovi. Internamente modifica anche tre puntatori alle parole più “simili” a quella cercata. La similitudine è data dalla funzione di Levenshtein. Il codice di quest’ultima funzione è stato ispirato da varie ricerche ma adattato e ri-progettato secondo le necessità. La funzione lavora mantenendo in memoria le varie distanze e parole e aggiornandole nel caso trovi una nuova parola più “vicina” a quella cercata. Nel complesso anche questa funzione si comporta come una visita in-order. Il costo è dato dalla visita $\Theta(n)$ più il costo della funzione di Levenshtein. Questa lavora su due stringhe m ed n e il suo costo è pari length(m)*length(n). Considerando le due stringhe di lunghezza massima di 20 caratteri (specifiche del progetto) pari ad m, avremmo un costo pari a $m^2$, e quindi un costo totale di Search Advance pari a $\Theta(n(m^2))$. C’è però da considerare che m non può eccedere i 20 caratteri, il che la porta a poter essere considerata una costante.\par
 				
-				\texttt{compressHuffman(NODO* dictionary, char* file\_name)} - Il compito di questa funzione è di comprimere il file per fargli occupare meno spazio. La funzione crea un albero delle codifiche basato sulla frequenza standard dei caratteri nel dizionario italiano (reperita su internet). Questa scelta è stata effettuata per permettere la decodifica anche dopo la chiusura/riapertura del file. Se l’albero fosse stato creato secondo la frequenza all’interno del dizionario, si sarebbe richiesto il salvataggio di un file aggiuntivo per la memorizzazione delle codifiche. Considerando che la frequenza media delle lettere italiane in un testo di grandi dimensioni si può considerare accurata, abbiamo optato per utilizzare quella. 
+				\texttt{compressHuffman(NODO* dictionary, char* file\_name)} - Il compito di questa funzione è di comprimere il file per fargli occupare meno spazio. La funzione crea un albero delle codifiche basato sulla frequenza standard dei caratteri nel dizionario italiano (reperita su internet). Questa scelta è stata effettuata per permettere la decodifica anche dopo la chiusura/riapertura del file. Se l’albero fosse stato creato secondo la frequenza all’interno del dizionario, si sarebbe richiesto il salvataggio di un file aggiuntivo per la memorizzazione delle codifiche. Considerando che la frequenza media delle lettere italiane in un testo di grandi dimensioni si può considerare accurata, abbiamo optato per utilizzare quella. Per evitare errori di sorta le lettere accentate sono state convertite in lettere normali.
 				La codifica di ogni lettera generata dall’albero viene poi salvata all’interno di una “tabella”. Ogni lettera dispone di una codifica lunga fino a 18 caratteri. La scelta di limitare la lunghezza dei caratteri è stata fatta per evitare di snaturare l’essenza stessa della compressione di Huffman, che consiste appunto nel ridurre al minimo le dimensioni delle codifiche. L’algoritmo di creazione della tabella è stato costruito su quest’assunto. 
-				Una volta costruita la tabella delle codifiche, l’algoritmo si preoccupa di trasformare ogni lettera di ogni stringa di ogni nodo del dizionario in una sequenza di bit, che verranno scritti a coppie di 8 (byte) nel file di salvataggio.
+				Una volta costruita la tabella delle codifiche, l’algoritmo si preoccupa di trasformare ogni lettera di ogni stringa di ogni nodo del dizionario in una sequenza di bit, che verranno scritti a coppie di 8 (byte) nel file di salvataggio. 
 				Il costo della funzione di Huffman è dato dalla somma del costo per la creazione dell’albero (considerando un numero di caratteri limitato è approssimabile a una costante), al costo del riempimento della tabella (anche qui costante) e al costo della scrittura su file di ogni nodo. La visita di ogni nodo ci costerà $\Theta(n)$, e per ognuno di questi dovremo andare a codificare la stringa della parola e quella della definizione. Considerando la lunghezza massima di parola più definizione k = 20 + 50, e considerando che per ognuno dei caratteri dovremo scrivere la codifica su file, otteniamo che il costo computazionale generale della funzione di compressione di Huffman sarà $\Theta(n*k)$. Con $k$ limitato superiormente a 70, il costo si può scrivere come $\Theta(70*n)$ = $\Theta(n)$, quindi lineare, anche se con costante moltiplicativa molto grande.\par 
 				
 				\texttt{decompressHuffman(char* file\_name, NODO** dictionary)} - La funzione si occupa di decomprimere il file compresso dalla funzione di compressione di Huffman. Anche la decompressione richiede la costruzione dell’albero delle codifiche, necessario per riconoscere i vari caratteri. La funzione si concentra sul leggere i byte (e quindi i bit della codifica) dal file e a scorrere l’albero di Huffman fino alle foglie per identificare la lettera; successivamente compone la stringa e alloca un nodo, contenente le parole e le definizioni del dizionario, che andrà poi inserito nel RBT. Nei vari test si è evinto come alcuni caratteri particolari dessero alcuni problemi in lettura. Per questo, ad esempio, non è stato usato un while $(!EOF)$ ma è stato creato un carattere terminatore personalizzato. I caratteri di controllo, nei vari test, non hanno presentato anomalie di sorta. La funzione, dovendo gestire l’importazione di un dizionario prestabilito, non accetta in input un dizionario che già contenga parole, per questo si preoccupa di svuotarlo ad ogni chiamata. Questa funzione è stata implementata con lo scopo di evitare di mischiare più dizionari diversi in memoria. Sarebbe stato anche possibile aggiungere semplicemente le parole “in più”, ma abbiamo valutato che importare il dizionario così come era stato salvato fosse una procedura più “pulita” e corretta. In ogni caso, volendo aggiungere le parole in più, basterebbe eliminare la funzione che si preoccupa di svuotare il dizionario (5 righe) e aggiungere una condizione che controlli (ad esempio con la searchAdvance) che la parola non sia già presente nel dizionario prima di inserirla. Il costo della funzione dipende dal numero di caratteri codificati nel file. Ognuno di questi viene aggiunto a una stinga, che a sua volta viene aggiunta ad un nodo che verrà inserito nel RBT. Il costo di questa funzione si può quindi dire lineare, dato che ogni carattere sarà valutato una e una sola volta. $\Theta(n)$.
