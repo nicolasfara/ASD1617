@@ -53,7 +53,7 @@
 \author{
 	Nicolas Farabegoli\\
 	Paolo Baldini\\
-	Università di Bologna\\  
+	Università di Bologna - Ingegneria e Scienze Informatiche Cesena\\  
 	\texttt{nicolas.farabegoli@studio.unibo.it} \\
 	\texttt{paolo.baldini@studio.unibo.it}\\
 }
@@ -174,40 +174,39 @@
 						RBT & $\Theta(log(n))$ & $\Theta(2log(n))$ \\
 						\hline					
 					\end{tabular}
-					\caption{Inserimento nel dizionario} %\label{tab:sometab}
-				\end{table}	
-				\noindent(*) i costi computazionali relativi alla tabella hash sono fortemente influenzati dalla funzione hash realizzata.
+					\caption{Inserimento nel dizionario} %\label{tab:sometab}					
+				\end{table}					
 				\begin{table}[ht]
 					\centering									
 					\begin{tabular}{l | c | c}
 						
 						Algorithm & Average case & Worst Case \\
 						\hline
-						Hash Table & $\Theta(xxx)$ & $\Theta(xxx)$ \\
+						Hash Table & $\Theta(xxx)^*$ & $\Theta(xxx)^*$ \\
 						\hline
 						BST & $\Theta(log(n))$ & $\Theta(n)$ \\
 						\hline
 						RBT & $\Theta(log(n))$ & $\Theta(2log(n))$ \\
 						\hline					
 					\end{tabular}
-					\caption{Cancellazione nel dizionario} %\label{tab:sometab}
-				\end{table}
-						
+					\caption{Cancellazione nel dizionario} %\label{tab:sometab}					
+				\end{table}				
 				\begin{table}[ht]
 					\centering									
 					\begin{tabular}{l | c | c}
 						
 						Algorithm & Average case & Worst Case \\
 						\hline
-						Hash Table & $\Omega(n)$ & $\Theta(n)$ \\
+						Hash Table & $\Theta(xxx)^*$ & $\Theta(xxx)^*$ \\
 						\hline
-						BST & $\Theta(n)$ & $\Theta(n)$ \\
+						BST & $\Theta(log(n))$ & $\Theta(n)$ \\
 						\hline
-						RBT & $\Theta(n)$ & $\Theta(n)$ \\
+						RBT & $\Theta(log(n))$ & $\Theta(2log(n))$ \\
 						\hline					
 					\end{tabular}
 					\caption{Ricerca nel dizionario} %\label{tab:sometab}
 				\end{table}
+			 {\fontsize{2.5mm}{1.5mm}\selectfont(*) I costi computazionali relativi alla tabella hash sono fortemente influenzati dalla funzione hash realizzata.\\}\\<
 			 \noindent Come si evince dalle tabelle l'algoritmo che presenta il miglior costo computazionale è il \textbf{RBT}.
 			 \pagebreak
 			 
@@ -256,9 +255,6 @@
 				Tra le difficoltà più grandi incontrate nel progetto troviamo la creazione delle funzioni relative alla manipolazione della struttura dati principale (RBT); per esempio la funzione per l'inserimento di un nodo nell'albero ha creato non poche difficoltà per il fatto che non riusciva a rispettare le politiche dei RBT, siamo riusciti a fixare la funzione studiando attentamente lo pseudocodice dell'algoritmo e implementarlo secondo le nostre esigenze. La funzione di cancellazione di un nodo (probabilmente per la sua difficoltà intrinseca) è stata piuttosto complicata da implementare e farla funzionare correttamente. In molte funzioni, la stesura del codice non si è rivelata di per se complicata, piuttosto si è rivelata a momenti problematica la risoluzione e l’individuazione di piccoli bug che creavano qualche problema in alcuni sottoprogrammi. Grazie comunque a lunghe sessioni di debuging sono stati per la maggior parte eliminati.
 				
 			\subsection{Considerazioni finali}
-				Grazie al progetto abbiamo potuto consolidare le nostre conoscenze circa il funzionamento e le proprietà legate ai RBT. Abbiamo messo in campo le nostre migliori competenze per poter affrontare e terminare nel migliore dei modi il compito assegnato e poter confrontarci per migliorare o talvolta sistemare/segnalare le problematiche incontrate durante la stesura del codice. Gli strumenti utilizzati per la realizzazione del progetto hanno indubbiamente favorito l'identificazione e di conseguenza la correzione di bugs che impedivano il corretto flusso e coerenza del programma.
-				Grazie a questo progetto siamo riusciti ad analizzare tutti gli aspetti (o quasi) del problema e abbiamo sempre cercato le soluzioni maggiormente efficienti per implementare le funzioni date.
-
-								
+				Grazie al progetto abbiamo potuto consolidare le nostre conoscenze circa il funzionamento e le proprietà legate ai RBT. Abbiamo messo in campo le nostre migliori competenze per poter affrontare e terminare nel migliore dei modi il compito assegnato e poter confrontarci per migliorare o talvolta sistemare/segnalare le problematiche incontrate durante la stesura del codice. Gli strumenti utilizzati per la realizzazione del progetto hanno indubbiamente favorito l'identificazione e di conseguenza la correzione di bugs che impedivano il corretto flusso e coerenza del programma. Grazie a questo progetto siamo riusciti ad analizzare tutti gli aspetti (o quasi) del problema e abbiamo sempre cercato le soluzioni maggiormente efficienti per implementare le funzioni date.					
 		 
 \end{document}
