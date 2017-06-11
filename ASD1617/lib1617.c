@@ -84,7 +84,7 @@ NODO *createFromFile(char * nameFile)
 		}
 		node->word[i] = '\0'; //Add string terminator
 		//Check if the word is 2 char lenght
-		if (strlen(node->word) < 2) {
+		if (strlen(node->word) < 2 || strlen(node->word) > MAX_WORD) {
 			free(node); //Release node
 		}
 		else {
